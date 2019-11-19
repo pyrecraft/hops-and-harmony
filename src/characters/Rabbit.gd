@@ -1,6 +1,7 @@
 extends KinematicBody2D
 
 const color_eyes = Color('#2a363b')
+const color_pink = Color('#f9a1bc')
 const color_primary = Color('#d4a5a5')
 const walk_smoke = preload('res://src/effects/WalkSmoke.tscn')
 
@@ -15,6 +16,7 @@ var scale_rate = .1
 var current_scale = .9
 var scale_polarity = 1 # +1 or -1
 var circle_center = Vector2(0, -30)
+var current_state = State.IDLE
 
 enum State {
 	IDLE,
@@ -22,11 +24,9 @@ enum State {
 	JUMPING
 }
 
-var current_state = State.IDLE
-var screen_size
 
 func _ready():
-	screen_size = get_viewport().size
+	pass
 
 func _process(delta):
 	handle_states(delta)
@@ -89,6 +89,7 @@ func is_walking():
 	return false
 
 func clamp_pos_to_screen():
+	var screen_size = get_viewport().size
 	position.x = clamp(position.x, 0, screen_size.x)
 	position.y = clamp(position.y, 0, screen_size.y)
 
@@ -97,46 +98,119 @@ func _draw():
 	draw_head()
 
 func draw_body():
-	draw_circle_arc(circle_center, 40, 0, 180, color_primary)
-	draw_circle_arc(circle_center, 40, 180, 360, color_primary)
+	draw_circle_arc_custom(circle_center, 40, 0, 180, color_primary)
+	draw_circle_arc_custom(circle_center, 40, 180, 360, color_primary)
 
 var head_offset_x = 0
 func draw_head():
 	var head_offset_y = 50.0 * current_scale
-	print(head_offset_y)
 	if Input.is_action_pressed("ui_right"):
 		head_offset_x = 5
 	if Input.is_action_pressed("ui_left"):
 		head_offset_x = -5
 	var head_position = Vector2(circle_center.x + head_offset_x, circle_center.y - head_offset_y)
-	draw_circle(head_position, 25, color_primary)
-	draw_eyes(head_position, head_offset_x)
+	draw_circle_custom(head_position, 25, color_primary)
+	draw_face(head_position, head_offset_x)
+	draw_ears(head_position, head_offset_x)
 
-func draw_eyes(head_vec, eye_offset_x):
+func draw_ears(head_vec, head_offset_x):
+	var ear_between_distance := 11.0
+	var ear_distance_y := 35.0
+	var ear_radius := 8.0
+	var inner_ear_radius := 4.0
+	var ear_offset_x = head_offset_x
+	
+	var left_ear_pos = Vector2(head_vec.x - ear_between_distance - head_offset_x, head_vec.y - ear_distance_y)
+	var right_ear_pos = Vector2(head_vec.x + ear_between_distance - head_offset_x, head_vec.y - ear_distance_y)
+	
+	# Draw outer ear
+	draw_circle_arc_custom_ears(left_ear_pos, ear_radius, 0, 180, color_primary)
+	draw_circle_arc_custom_ears(left_ear_pos, ear_radius, 180, 360, color_primary)
+	draw_circle_arc_custom_ears(right_ear_pos, ear_radius, 0, 180, color_primary)
+	draw_circle_arc_custom_ears(right_ear_pos, ear_radius, 180, 360, color_primary)
+	
+	draw_ear_head_connection(left_ear_pos, right_ear_pos, ear_radius, ear_distance_y, ear_offset_x)
+	
+	# Draw inner ear
+	draw_circle_arc_custom(left_ear_pos, inner_ear_radius, 0, 180, color_pink)
+	draw_circle_arc_custom(left_ear_pos, inner_ear_radius, 180, 360, color_pink)
+	draw_circle_arc_custom(right_ear_pos, inner_ear_radius, 0, 180, color_pink)
+	draw_circle_arc_custom(right_ear_pos, inner_ear_radius, 180, 360, color_pink)
+	
+
+func draw_ear_head_connection(left_ear, right_ear, radius, height, offset_x):
+	radius *= (1.0 - max(current_scale, 1)) + 1.0
+		
+	var left_ear_points = [
+		Vector2(left_ear.x + radius, left_ear.y),
+		Vector2(left_ear.x - radius, left_ear.y),
+		Vector2(left_ear.x - (radius/2.0) + offset_x, left_ear.y + (height * 2.0/3.0)),
+		Vector2(left_ear.x + (radius/2.0) + offset_x, left_ear.y + (height * 2.0/3.0))
+	]
+	var right_ear_points = [
+		Vector2(right_ear.x + radius, right_ear.y),
+		Vector2(right_ear.x - radius, right_ear.y),
+		Vector2(right_ear.x - (radius/2.0) + offset_x, right_ear.y + (height * 2.0/3.0)),
+		Vector2(right_ear.x + (radius/2.0) + offset_x, right_ear.y + (height * 2.0/3.0))
+	]
+	var right_ear_shape = PoolVector2Array(right_ear_points)
+	var left_ear_shape = PoolVector2Array(left_ear_points)
+	draw_colored_polygon(right_ear_shape, color_primary)
+	draw_colored_polygon(left_ear_shape, color_primary)
+
+func draw_face(head_vec, head_offset_x):
 	var eye_height := 5.0
 	var eye_between_width := 9.0
 	var eye_radius := 3.5
-	var left_eye = Vector2(head_vec.x - eye_between_width + eye_offset_x, head_vec.y - eye_height)
-	var right_eye = Vector2(head_vec.x + eye_between_width + eye_offset_x, head_vec.y - eye_height)
-	draw_circle(left_eye, eye_radius, color_eyes)
-	draw_circle(right_eye, eye_radius, color_eyes)
-#	var eye_size = Vector2(7.5, 4.5)
-#	var left_eye_rect = Rect2(left_eye, eye_size)
-#	var right_eye_rect = Rect2(right_eye, eye_size)
-#	draw_rect(left_eye_rect, color_eyes)
-#	draw_rect(right_eye_rect, color_eyes)
+	var left_eye = Vector2(head_vec.x - eye_between_width + head_offset_x, head_vec.y - eye_height)
+	var right_eye = Vector2(head_vec.x + eye_between_width + head_offset_x, head_vec.y - eye_height)
+	draw_circle_custom(left_eye, eye_radius, color_eyes)
+	draw_circle_custom(right_eye, eye_radius, color_eyes)
+	
+	var nose_radius := 4.0
+	var nose_offset_y := 2.0
+	draw_circle_custom(Vector2(head_vec.x + head_offset_x, head_vec.y + nose_offset_y), nose_radius, color_pink)
+
+# Uses current_scale
+func draw_circle_arc_custom(center, radius, angle_from, angle_to, color):
+	var nb_points = Constants.CIRCLE_NB_POINTS
+	var points_arc = PoolVector2Array()
+	var colors = PoolColorArray([color])
+
+	for i in range(nb_points + 1):
+		var angle_point = deg2rad(angle_from + i * (angle_to-angle_from) / nb_points - 90)
+		points_arc.push_back(center + Vector2(cos(angle_point) * 1 / current_scale, sin(angle_point) * current_scale) * radius)
+
+	draw_polygon(points_arc, colors)
+
+# Maxes the ear_scale to .95
+func draw_circle_arc_custom_ears(center, radius, angle_from, angle_to, color):
+	var nb_points = Constants.CIRCLE_NB_POINTS
+	var points_arc = PoolVector2Array()
+	var colors = PoolColorArray([color])
+
+	var ear_scale = max(current_scale, .95)
+
+	for i in range(nb_points + 1):
+		var angle_point = deg2rad(angle_from + i * (angle_to-angle_from) / nb_points - 90)
+		points_arc.push_back(center + Vector2(cos(angle_point) * 1 / ear_scale, sin(angle_point) * ear_scale) * radius)
+
+	draw_polygon(points_arc, colors)
 
 func draw_circle_arc(center, radius, angle_from, angle_to, color):
-    var nb_points = 8
-    var points_arc = PoolVector2Array()
-    var colors = PoolColorArray([color])
+	var nb_points = Constants.CIRCLE_NB_POINTS
+	var points_arc = PoolVector2Array()
+	points_arc.push_back(center)
+	var colors = PoolColorArray([color])
 
-    for i in range(nb_points + 1):
-        var angle_point = deg2rad(angle_from + i * (angle_to-angle_from) / nb_points - 90)
-        points_arc.push_back(center + Vector2(cos(angle_point) * 1 / current_scale, sin(angle_point) * current_scale) * radius)
+	for i in range(nb_points + 1):
+		var angle_point = deg2rad(angle_from + i * (angle_to - angle_from) / nb_points - 90)
+		points_arc.push_back(center + Vector2(cos(angle_point), sin(angle_point)) * radius)
+	draw_polygon(points_arc, colors)
 
-    for index_point in range(nb_points):
-        draw_polygon(points_arc, colors)
+func draw_circle_custom(pos, rad, col):
+	draw_circle_arc(pos, rad, 0, 180, col)
+	draw_circle_arc(pos, rad, 180, 360, col)
 
 func _on_WalkSmokeTimer_timeout():
 	if is_on_floor() and (Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left")):

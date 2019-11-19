@@ -19,6 +19,10 @@ config/name="Toto and Harley"
 run/main_scene="res://src/places/Playground.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+Constants="*res://src/helpers/Constants.gd"
+
 [rendering]
 
 quality/driver/driver_name="GLES2"
