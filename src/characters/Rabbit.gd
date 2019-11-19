@@ -15,7 +15,7 @@ var velocity = Vector2()
 var scale_rate = .1
 var current_scale = .9
 var scale_polarity = 1 # +1 or -1
-var circle_center = Vector2(0, -30)
+var circle_center = Vector2(0, -15)
 var current_state = State.IDLE
 
 enum State {
