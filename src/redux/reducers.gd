@@ -1,6 +1,6 @@
 extends Node
 
-const initial_state = preload('res://godot_redux/initial_state.gd')
+const initial_state = preload('initial_state.gd')
 
 onready var types = get_node('/root/action_types')
 onready var store = get_node('/root/store')

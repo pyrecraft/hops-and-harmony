@@ -12,7 +12,7 @@ script = ExtResource( 1 )
 shape = SubResource( 1 )
 
 [node name="AutomationTimer" type="Timer" parent="."]
-wait_time = 8.0
+wait_time = 30.0
 autostart = true
 
 [node name="ShellTimer" type="Timer" parent="."]

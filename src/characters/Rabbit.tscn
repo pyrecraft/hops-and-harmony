@@ -12,4 +12,7 @@ script = ExtResource( 1 )
 shape = SubResource( 1 )
 
 [node name="WalkSmokeTimer" type="Timer" parent="."]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
 [connection signal="timeout" from="WalkSmokeTimer" to="." method="_on_WalkSmokeTimer_timeout"]

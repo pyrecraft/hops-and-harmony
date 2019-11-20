@@ -1,6 +1,6 @@
 extends KinematicBody2D
 
-const starting_pos = Vector2(500, 0)
+const starting_pos = Vector2(0, 0)
 const turtle_skin_color = Color('#19c590')
 const turtle_skin_color_secondary = Color('#139d73')
 const turtle_shell_color = Color('#ed8d8d')
@@ -10,7 +10,7 @@ const turtle_eye_color = Color('#8d6262')
 # Movement
 var gravity = 1000
 var walk_speed = 100
-var jump_speed = -3000
+var jump_speed = -1000
 var velocity = Vector2()
 var normal_vec = Vector2(0, 0)
 var is_moving_left = false
@@ -42,7 +42,7 @@ var leg_current_scale_list = [0, 0, 0, 0]
 var leg_scale_polarity_list = [1, -1, -1, 1]
 
 func _ready():
-	position = starting_pos
+	pass
 
 func _process(delta):
 	handle_states(delta)
@@ -52,7 +52,7 @@ func _process(delta):
 
 func _physics_process(delta):
 	set_velocities(delta)
-	clamp_pos_to_screen()
+#	clamp_pos_to_screen()
 	if is_colliding_with_rabbit() and !is_in_shell:
 		go_into_shell()
 		$ShellTimer.start()
@@ -162,11 +162,11 @@ func clamp_pos_to_screen():
 func _draw():
 	var turtle_body_length := 95
 	if !is_in_shell:
-		draw_turtle_head(turtle_body_length)
+		draw_turtle_head()
 		draw_turtle_legs(turtle_body_length)
 	draw_turtle_body(turtle_body_length)
 
-func draw_turtle_head(turtle_body_length):
+func draw_turtle_head():
 	var left_multiplier = -1 if is_moving_left else 1
 	var head_offset = Vector2(80, 0)
 	var head_radius = 18
@@ -188,10 +188,10 @@ func draw_turtle_head(turtle_body_length):
 	draw_line(neck_pos_3, head_pos, turtle_skin_color, head_radius)
 	
 	# Eyes
-	var eyes_offset = Vector2(5, 5)
-	var eyes_radius = 4
+	var eyes_offset = Vector2(6, 4)
+	var eyes_radius = 3.7
 	var eye_position = Vector2(head_pos.x + (left_multiplier * eyes_offset.x), head_pos.y - eyes_offset.y)
-	draw_circle_arc_trig(eye_position, eyes_radius, 0, 360, turtle_eye_color, .8, 8)
+	draw_circle_arc_trig(eye_position, eyes_radius, 0, 360, turtle_eye_color, 1, 8)
 
 func draw_turtle_legs(turtle_body_length):
 	var left_multiplier = -1 if is_moving_left else 1
@@ -252,8 +252,8 @@ func draw_turtle_body(turtle_body_length):
 	var shell_design_inbetween_radius := 7.0
 	
 	for point in range(2, len(shell_bottom_points) - 2):
-		draw_line(shell_top_points[point - 1] * .95, shell_bottom_points[point] * 1.1, turtle_shell_color, shell_design_inbetween_radius)
-		draw_line(shell_top_points[point] * .95, shell_bottom_points[point] * 1.1, turtle_shell_color, shell_design_inbetween_radius)
+		draw_line(shell_top_points[point - 1] * .95, shell_bottom_points[point] * .75, turtle_shell_color, shell_design_inbetween_radius)
+		draw_line(shell_top_points[point] * .95, shell_bottom_points[point] * .75, turtle_shell_color, shell_design_inbetween_radius)
 
 func draw_circle_trig(pos, rad, col, trig):
 	draw_circle_arc_trig(pos, rad, 0, 180, col, trig, Constants.CIRCLE_NB_POINTS)

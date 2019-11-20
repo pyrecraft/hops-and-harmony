@@ -1,0 +1,80 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://src/places/MainIsland.gd" type="Script" id=1]
+[ext_resource path="res://src/characters/Rabbit.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=3]
+[ext_resource path="res://src/IslandWater.tscn" type="PackedScene" id=4]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 1908.32, 24.9725 )
+
+[sub_resource type="CircleShape2D" id=2]
+radius = 116.811
+
+[sub_resource type="CircleShape2D" id=5]
+radius = 90.6435
+
+[sub_resource type="CircleShape2D" id=6]
+radius = 90.6435
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 96.8728
+
+[sub_resource type="CircleShape2D" id=4]
+radius = 157.052
+
+[node name="MainIsland" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="Floor" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+position = Vector2( 2032.97, 475.663 )
+shape = SubResource( 1 )
+
+[node name="Rabbit" parent="." instance=ExtResource( 2 )]
+position = Vector2( 512, 300 )
+
+[node name="Turtle" parent="." instance=ExtResource( 3 )]
+position = Vector2( 750.211, 179.712 )
+
+[node name="Hill" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hill"]
+position = Vector2( 1246.17, 454.606 )
+shape = SubResource( 2 )
+
+[node name="Hill4" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hill4"]
+position = Vector2( 143.225, 541.658 )
+shape = SubResource( 5 )
+
+[node name="Hill5" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hill5"]
+position = Vector2( 3918.89, 541.658 )
+shape = SubResource( 6 )
+
+[node name="Hill2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hill2"]
+position = Vector2( 1802.91, 450.149 )
+shape = SubResource( 3 )
+
+[node name="Hill3" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hill3"]
+position = Vector2( 2768.41, 461.291 )
+shape = SubResource( 4 )
+
+[node name="IslandWater" parent="." instance=ExtResource( 4 )]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+show_behind_parent = true
+margin_left = -504.0
+margin_top = -295.0
+margin_right = 4429.0
+margin_bottom = 936.0
+color = Color( 0.117647, 0.709804, 0.670588, 1 )

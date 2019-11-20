@@ -14,10 +14,8 @@ static func get_substate(substate):
 	match substate:
 		'game':
 			return {
-				'money': 500,
+				'camera_limit_right': 1200,
 				'day': 1,
-				'state': Constants.State.PAINT,
-				'mission': ''
 			}
 		'canvas':
 			return {

@@ -16,12 +16,16 @@ _global_script_class_icons={
 [application]
 
 config/name="Toto and Harley"
-run/main_scene="res://src/places/Playground.tscn"
+run/main_scene="res://src/Root.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
 Constants="*res://src/helpers/Constants.gd"
+store="*res://src/redux/store.gd"
+action_types="*res://src/redux/action_types.gd"
+actions="*res://src/redux/actions.gd"
+reducers="*res://src/redux/reducers.gd"
 
 [rendering]
 

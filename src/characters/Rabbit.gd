@@ -15,7 +15,7 @@ var velocity = Vector2()
 var scale_rate = .1
 var current_scale = .9
 var scale_polarity = 1 # +1 or -1
-var circle_center = Vector2(0, -15)
+var circle_center = Vector2(0, -10)
 var current_state = State.IDLE
 
 enum State {
@@ -23,7 +23,6 @@ enum State {
 	WALKING,
 	JUMPING
 }
-
 
 func _ready():
 	pass
@@ -34,7 +33,7 @@ func _process(delta):
 
 func _physics_process(delta):
 	set_velocities(delta)
-	clamp_pos_to_screen()
+#	clamp_pos_to_screen()
 
 func handle_states(delta):
 	current_scale += scale_rate * delta * scale_polarity
@@ -72,19 +71,25 @@ func handle_states(delta):
 func set_velocities(delta):
 	velocity.x = 0
 	velocity.y += gravity * delta
-	if Input.is_action_pressed("ui_right"):
+	if is_walking_right():
 		velocity.x += walk_speed
-	if Input.is_action_pressed("ui_left"):
+	if is_walking_left():
 		velocity.x -= walk_speed
 	if Input.is_key_pressed(KEY_SPACE) and is_on_floor():
 		velocity.y = jump_speed
 
 	velocity = move_and_slide(velocity, Vector2(0, -1))
 
+func is_walking_left():
+	return Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A)
+
+func is_walking_right():
+	return Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D)
+
 func is_walking():
-	if Input.is_action_pressed("ui_right") and !Input.is_action_pressed("ui_left"):
+	if is_walking_left() and !is_walking_right():
 		return true
-	if !Input.is_action_pressed("ui_right") and Input.is_action_pressed("ui_left"):
+	if is_walking_right() and !is_walking_left():
 		return true
 	return false
 
@@ -104,9 +109,9 @@ func draw_body():
 var head_offset_x = 0
 func draw_head():
 	var head_offset_y = 50.0 * current_scale
-	if Input.is_action_pressed("ui_right"):
+	if is_walking_right():
 		head_offset_x = 5
-	if Input.is_action_pressed("ui_left"):
+	if is_walking_left():
 		head_offset_x = -5
 	var head_position = Vector2(circle_center.x + head_offset_x, circle_center.y - head_offset_y)
 	draw_circle_custom(head_position, 25, color_primary)
@@ -213,7 +218,7 @@ func draw_circle_custom(pos, rad, col):
 	draw_circle_arc(pos, rad, 180, 360, col)
 
 func _on_WalkSmokeTimer_timeout():
-	if is_on_floor() and (Input.is_action_pressed("ui_right") or Input.is_action_pressed("ui_left")):
+	if is_on_floor() and is_walking():
 		var next_smoke = walk_smoke.instance()
 		get_parent().add_child(next_smoke)
 		next_smoke.set_position(Vector2(position.x, position.y + 20))
@@ -222,9 +227,9 @@ func spawn_landing_smoke():
 	$WalkSmokeTimer.start(.5)
 	for i in range(-1, 2):
 		var x_offset = 0
-		if Input.is_action_pressed("ui_right"):
+		if is_walking_right():
 			x_offset += 15
-		elif Input.is_action_pressed("ui_left"):
+		elif is_walking_left():
 			x_offset -= 15
 		var next_smoke = walk_smoke.instance()
 		get_parent().add_child(next_smoke)
