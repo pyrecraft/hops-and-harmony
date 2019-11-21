@@ -1,7 +1,7 @@
 extends Node2D
 
-const water_line_color = Color('#f9f9f9')
-const water_color = Color(94.0/255.0, 223.0/255.0, 1.0, 255.0/255.0)
+const water_line_color = Color(249.0/255.0, 249.0/255.0, 249.0/255.0, 200.0/255.0)
+const water_color = Color(94.0/255.0, 223.0/255.0, 1.0, 125.0/255.0)
 
 var start_pos = Vector2(-1000, 550)
 var end_pos = Vector2(6000, 550)
@@ -41,8 +41,8 @@ func _draw():
 			wave_polyline_radius, wave_circle_radius)
 		current_pos.x += (4 * wave_circle_radius)
 	
-	draw_rect(Rect2(Vector2(start_pos.x, start_pos.y + 50), \
-		Vector2(end_pos.x - start_pos.x, 600)), water_color)
+	draw_rect(Rect2(Vector2(start_pos.x, start_pos.y + 60), \
+		Vector2(end_pos.x - start_pos.x, 2000)), water_color)
 
 func draw_left_wave(starting_pos, polyline_radius, circle_radius):
 	# Left Wave

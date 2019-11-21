@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/things/PalmTree.gd" type="Script" id=1]
+
+
+[node name="PalmTree" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="TrunkSwayTimer" type="Timer" parent="."]
+wait_time = 0.2
+autostart = true
+[connection signal="timeout" from="TrunkSwayTimer" to="." method="_on_TrunkSwayTimer_timeout"]

@@ -1,8 +1,8 @@
 extends KinematicBody2D
 
 const color_eyes = Color('#2a363b')
-const color_pink = Color('#f9a1bc')
-const color_primary = Color('#d4a5a5')
+const color_pink = Color('#f78dae')
+const color_primary = Color('#dcb6b6')
 const walk_smoke = preload('res://src/effects/WalkSmoke.tscn')
 
 # Movement
@@ -34,6 +34,13 @@ func _process(delta):
 func _physics_process(delta):
 	set_velocities(delta)
 #	clamp_pos_to_screen()
+	check_for_water_death()
+
+func check_for_water_death():
+	if position.x < 200 and position.y > 1000: # Left side death
+		position = Vector2(150, 350)
+	if position.x > 3000 and position.y > 1000:
+		position = Vector2(3850, 350)
 
 func handle_states(delta):
 	current_scale += scale_rate * delta * scale_polarity

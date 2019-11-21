@@ -5,7 +5,7 @@ const turtle_skin_color = Color('#19c590')
 const turtle_skin_color_secondary = Color('#139d73')
 const turtle_shell_color = Color('#ed8d8d')
 const turtle_shell_design_color = Color('#f2afaf')
-const turtle_eye_color = Color('#8d6262')
+const turtle_eye_color = Color('#2a363b')
 
 # Movement
 var gravity = 1000
