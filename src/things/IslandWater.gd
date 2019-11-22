@@ -3,7 +3,7 @@ extends Node2D
 const water_line_color = Color(249.0/255.0, 249.0/255.0, 249.0/255.0, 200.0/255.0)
 const water_color = Color(94.0/255.0, 223.0/255.0, 1.0, 125.0/255.0)
 
-var start_pos = Vector2(-1000, 550)
+var start_pos = Vector2(-1500, 550)
 var end_pos = Vector2(6000, 550)
 var wave_start_x = 0
 var wave_rate = 10

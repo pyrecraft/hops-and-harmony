@@ -1,13 +1,15 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://src/places/MainIsland.gd" type="Script" id=1]
 [ext_resource path="res://src/things/Valley.tscn" type="PackedScene" id=2]
-[ext_resource path="res://src/characters/Rabbit.tscn" type="PackedScene" id=3]
-[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=4]
-[ext_resource path="res://src/things/IslandWater.tscn" type="PackedScene" id=5]
-[ext_resource path="res://src/things/Background.tscn" type="PackedScene" id=6]
-[ext_resource path="res://src/things/Cloud.tscn" type="PackedScene" id=7]
-[ext_resource path="res://src/things/PalmTree.tscn" type="PackedScene" id=8]
+[ext_resource path="res://src/things/IslandWater.tscn" type="PackedScene" id=3]
+[ext_resource path="res://src/things/Background.tscn" type="PackedScene" id=4]
+[ext_resource path="res://src/things/Cloud.tscn" type="PackedScene" id=5]
+[ext_resource path="res://src/things/PalmTree.tscn" type="PackedScene" id=6]
+[ext_resource path="res://src/things/Supershape.tscn" type="PackedScene" id=7]
+[ext_resource path="res://src/characters/Crab.tscn" type="PackedScene" id=8]
+[ext_resource path="res://src/characters/Rabbit.tscn" type="PackedScene" id=9]
+[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=10]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 1908.32, 24.9725 )
@@ -84,53 +86,48 @@ editor/display_folded = true
 position = Vector2( 2032.97, 475.663 )
 shape = SubResource( 1 )
 
-[node name="Rabbit" parent="." instance=ExtResource( 3 )]
-position = Vector2( 583.093, 300 )
-
-[node name="Turtle" parent="." instance=ExtResource( 4 )]
-position = Vector2( 750.211, 179.712 )
-
-[node name="IslandWater" parent="." instance=ExtResource( 5 )]
+[node name="IslandWater" parent="." instance=ExtResource( 3 )]
 
 [node name="CloudTimer" type="Timer" parent="."]
 wait_time = 20.0
 autostart = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+editor/display_folded = true
 layer = -2
 
-[node name="Background" parent="CanvasLayer" instance=ExtResource( 6 )]
+[node name="Background" parent="CanvasLayer" instance=ExtResource( 4 )]
 z_index = -2
 z_as_relative = false
 
 [node name="Clouds" type="Node" parent="."]
 editor/display_folded = true
 
-[node name="Cloud" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( 424.087, 63.2411 )
 
-[node name="Cloud8" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud8" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( -52.7365, 63.2411 )
 
-[node name="Cloud9" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud9" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( -751.81, 47.4428 )
 
-[node name="Cloud5" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud5" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( 2662.79, 63.2411 )
 
-[node name="Cloud6" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud6" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( 3352.66, 46.3325 )
 
-[node name="Cloud7" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud7" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( 4045.92, 46.3325 )
 
-[node name="Cloud2" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud2" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( 1032.16, 18.6005 )
 
-[node name="Cloud3" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud3" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( 1558.73, 37.2007 )
 
-[node name="Cloud4" parent="Clouds" instance=ExtResource( 7 )]
+[node name="Cloud4" parent="Clouds" instance=ExtResource( 5 )]
 position = Vector2( 2090.38, 18.6003 )
 
 [node name="Hills" type="Node" parent="."]
@@ -174,18 +171,83 @@ shape = SubResource( 6 )
 [node name="Trees" type="Node" parent="."]
 editor/display_folded = true
 
-[node name="PalmTree" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree" parent="Trees" instance=ExtResource( 6 )]
 position = Vector2( 402.817, 288.061 )
 
-[node name="PalmTree2" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree2" parent="Trees" instance=ExtResource( 6 )]
 position = Vector2( 1548.03, 271.667 )
 tree_height = 220
 
-[node name="PalmTree3" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree3" parent="Trees" instance=ExtResource( 6 )]
 position = Vector2( 2292.78, 304.455 )
 tree_height = 180
 
-[node name="PalmTree4" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree4" parent="Trees" instance=ExtResource( 6 )]
 position = Vector2( 3385.39, 304.455 )
 tree_height = 180
+
+[node name="Supershapes" type="Node" parent="."]
+
+[node name="Starfish" parent="Supershapes" instance=ExtResource( 7 )]
+position = Vector2( 176.569, 487.282 )
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 20.0
+supershape_np = 100
+n1 = 0.1
+
+[node name="Starfish6" parent="Supershapes" instance=ExtResource( 7 )]
+position = Vector2( 3924.2, 494.016 )
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 20.0
+supershape_np = 100
+n1 = 0.1
+
+[node name="Starfish5" parent="Supershapes" instance=ExtResource( 7 )]
+position = Vector2( 101.117, 494.141 )
+rotation = -1.40674
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 18.0
+supershape_np = 25
+n1 = 0.08
+
+[node name="Starfish2" parent="Supershapes" instance=ExtResource( 7 )]
+position = Vector2( 265.932, 483.042 )
+rotation = -0.563741
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 18.0
+supershape_np = 100
+n1 = 0.08
+n2 = 1.8
+n3 = 1.8
+
+[node name="Starfish3" parent="Supershapes" instance=ExtResource( 7 )]
+position = Vector2( 3838.42, 483.042 )
+rotation = -1.68948
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 3.0
+supershape_np = 150
+n1 = 0.12
+n2 = 2.5
+n3 = 2.5
+
+[node name="Starfish4" parent="Supershapes" instance=ExtResource( 7 )]
+position = Vector2( 4002.28, 540.284 )
+rotation = 0.280998
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 3.0
+supershape_np = 150
+n1 = 0.1
+n2 = 2.6
+n3 = 2.6
+
+[node name="Characters" type="Node" parent="."]
+
+[node name="Crab" parent="Characters" instance=ExtResource( 8 )]
+position = Vector2( 213.277, 438.402 )
+
+[node name="Rabbit" parent="Characters" instance=ExtResource( 9 )]
+position = Vector2( 532.586, 300 )
+
+[node name="Turtle" parent="Characters" instance=ExtResource( 10 )]
+position = Vector2( 750.211, 179.712 )
 [connection signal="timeout" from="CloudTimer" to="." method="_on_CloudTimer_timeout"]
