@@ -1,6 +1,7 @@
 extends Node2D
 
 export var color_primary = Color('#f26860')
+const color_back_legs = Color('ef4a40')
 const color_secondary = Color('da1c11')
 const eye_color = Color('2a363b')
 
@@ -70,7 +71,7 @@ func draw_legs():
 	for i in range(0, 3):
 		right_leg_points = get_arc_points(next_crab_leg_pos, leg_radius, 0, 180, \
 			1.0 + (1.0 - current_scale), 2)
-		draw_polyline(right_leg_points, color_secondary, 4)
+		draw_polyline(right_leg_points, color_back_legs, 4)
 		next_crab_leg_pos.x += each_leg_offset.x
 		next_crab_leg_pos.y += each_leg_offset.y
 

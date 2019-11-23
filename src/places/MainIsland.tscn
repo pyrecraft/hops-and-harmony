@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://src/places/MainIsland.gd" type="Script" id=1]
 [ext_resource path="res://src/things/Valley.tscn" type="PackedScene" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://src/characters/Crab.tscn" type="PackedScene" id=8]
 [ext_resource path="res://src/characters/Rabbit.tscn" type="PackedScene" id=9]
 [ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=10]
+[ext_resource path="res://src/characters/Songbird.tscn" type="PackedScene" id=11]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 1908.32, 24.9725 )
@@ -249,5 +250,8 @@ position = Vector2( 213.277, 438.402 )
 position = Vector2( 532.586, 300 )
 
 [node name="Turtle" parent="Characters" instance=ExtResource( 10 )]
-position = Vector2( 750.211, 179.712 )
+position = Vector2( 1440.48, 172.978 )
+
+[node name="Songbird" parent="Characters" instance=ExtResource( 11 )]
+position = Vector2( 673.43, 292.942 )
 [connection signal="timeout" from="CloudTimer" to="." method="_on_CloudTimer_timeout"]
