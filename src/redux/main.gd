@@ -13,5 +13,4 @@ func _ready():
 	])
 
 func _on_store_changed(name, state):
-	print(state)
 	pass

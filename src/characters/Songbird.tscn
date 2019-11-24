@@ -4,22 +4,26 @@
 [ext_resource path="res://src/things/Supershape.tscn" type="PackedScene" id=2]
 
 [node name="Songbird" type="Node2D"]
-position = Vector2( 138.827, 134.095 )
 script = ExtResource( 1 )
+color_primary = Color( 0.54902, 0.87451, 0.721569, 1 )
 
 [node name="Body" parent="." instance=ExtResource( 2 )]
+position = Vector2( 9.46552, 0 )
 rotation = 0.598648
-supershape_scale = 50.0
+z_index = -1
+supershape_color = Color( 0.54902, 0.87451, 0.721569, 1 )
+supershape_scale = 70.0
 m = 1.0
 n1 = 0.5
 n2 = 0.5
 n3 = 0.5
 
 [node name="Head" parent="." instance=ExtResource( 2 )]
-position = Vector2( 1.57758, -23.6638 )
-rotation = 3.14159
-supershape_color = Color( 0.933333, 0.65098, 0.65098, 1 )
-supershape_scale = 30.0
+position = Vector2( 1.57758, -31.5517 )
+rotation = 2.87979
+z_index = -1
+supershape_color = Color( 1, 0.772549, 0.631373, 1 )
+supershape_scale = 40.0
 m = 1.0
 n1 = 0.5
 n2 = 0.5

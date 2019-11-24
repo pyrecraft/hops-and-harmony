@@ -26,6 +26,11 @@ store="*res://src/redux/store.gd"
 action_types="*res://src/redux/action_types.gd"
 actions="*res://src/redux/actions.gd"
 reducers="*res://src/redux/reducers.gd"
+Globals="*res://src/helpers/Globals.gd"
+
+[display]
+
+window/size/width=900
 
 [rendering]
 

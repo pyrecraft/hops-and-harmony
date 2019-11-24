@@ -16,16 +16,58 @@ var scale_rate = .1
 var current_scale = .9
 var scale_polarity = 1 # +1 or -1
 var circle_center = Vector2(0, -10)
-var current_state = State.IDLE
+var current_rabbit_state = RabbitState.IDLE
 
-enum State {
+# State Tree
+var dialogue_queue_L = []
+var npc_position_L = Vector2(0, 0)
+
+var game_day_L = 1
+var game_hour_L = 1
+var game_state_L = Globals.GameState.PLAYING
+var game_progress_L = Globals.GameProgress.BEDROOM
+
+enum RabbitState {
 	IDLE,
 	WALKING,
 	JUMPING
 }
 
 func _ready():
-	pass
+	store.subscribe(self, "_on_store_changed")
+
+func _on_store_changed(name, state):
+	if store.get_state() == null:
+		return
+	if store.get_state()['dialogue']['queue'] != null:
+		dialogue_queue_L = store.get_state()['dialogue']['queue']
+		handle_next_dialogue(dialogue_queue_L)
+	if store.get_state()['dialogue']['npc_position'] != null:
+		npc_position_L = store.get_state()['dialogue']['npc_position']
+	if store.get_state()['game']['day'] != null:
+		game_day_L = store.get_state()['game']['day']
+	if store.get_state()['game']['hour'] != null:
+		game_hour_L = store.get_state()['game']['hour']
+	if store.get_state()['game']['state'] != null:
+		game_state_L = store.get_state()['game']['state']
+	if store.get_state()['game']['progress'] != null:
+		game_progress_L = store.get_state()['game']['progress']
+
+func handle_next_dialogue(queue):
+	if queue.empty():
+		return
+	
+	var next_dialogue_obj = queue.front()
+	var speaker = next_dialogue_obj['speaker']
+	
+	if speaker != name:
+		return
+	
+	var dialogue_text = next_dialogue_obj['text']
+	
+	print('Rabbit says: ' + dialogue_text)
+	
+	store.dispatch(actions.dialogue_pop_queue())
 
 func _process(delta):
 	handle_states(delta)
@@ -49,27 +91,27 @@ func handle_states(delta):
 	elif current_scale > 1.05: # Thinner
 		scale_polarity = -1
 		scale_rate = .1
-	match current_state:
-		State.IDLE:
+	match current_rabbit_state:
+		RabbitState.IDLE:
 			if !is_on_floor():
-				current_state = State.JUMPING
+				current_rabbit_state = RabbitState.JUMPING
 				current_scale = 1.25
 				scale_polarity = -1
 			elif is_walking():
-				current_state = State.WALKING
-		State.WALKING:
+				current_rabbit_state = RabbitState.WALKING
+		RabbitState.WALKING:
 			if !is_on_floor():
-				current_state = State.JUMPING
+				current_rabbit_state = RabbitState.JUMPING
 				current_scale = 1.25
 				scale_polarity = -1
 			elif !is_walking():
-				current_state = State.IDLE
-		State.JUMPING:
+				current_rabbit_state = RabbitState.IDLE
+		RabbitState.JUMPING:
 			if is_on_floor():
 				if is_walking():
-					current_state = State.WALKING
+					current_rabbit_state = RabbitState.WALKING
 				else:
-					current_state = State.IDLE
+					current_rabbit_state = RabbitState.IDLE
 				spawn_landing_smoke()
 				current_scale = .85
 				scale_polarity = 1

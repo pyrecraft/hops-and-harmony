@@ -16,74 +16,34 @@ func game(state, action):
 		var next_state = store.shallow_copy(state)
 		next_state['state'] = action['state']
 		return next_state
-	if action['type'] == action_types.GAME_SET_MONEY:
+	if action['type'] == action_types.GAME_SET_HOUR:
 		var next_state = store.shallow_copy(state)
-		next_state['money'] = action['money']
+		next_state['hour'] = action['hour']
 		return next_state
-	if action['type'] == action_types.GAME_SET_MISSION:
+	if action['type'] == action_types.GAME_SET_PROGRESS:
 		var next_state = store.shallow_copy(state)
-		next_state['mission'] = action['mission']
-		return next_state
-	return state
-
-func canvas(state, action):
-	if state.empty() and action['type'] == null:
-		return initial_state.get_substate('canvas')
-	if action['type'] == action_types.CANVAS_SET_DIMENSIONS:
-		var next_state = store.shallow_copy(state)
-		next_state['dimensions'] = action['dimensions']
-		return next_state
-	if action['type'] == action_types.CANVAS_SET_STARTING_VECTOR:
-		var next_state = store.shallow_copy(state)
-		next_state['starting_vector'] = action['starting_vector']
-		return next_state
-	if action['type'] == action_types.CANVAS_SET_GRID:
-		var next_state = store.shallow_copy(state)
-		next_state['grid'] = action['grid']
-		return next_state
-	if action['type'] == action_types.CANVAS_ADD_TO_GRID:
-		var next_state = store.shallow_copy(state)
-		next_state['grid'] = action['grid']
-		var grid = action['grid']
-		for y in range(get_viewport().size.y):
-			for x in range(get_viewport().size.x):
-				if grid[y][x] != null:
-					next_state['grid'][y][x] = grid[y][x]
+		next_state['progress'] = action['progress']
 		return next_state
 	return state
 
-func paint(state, action):
+func dialogue(state, action):
 	if state.empty() and action['type'] == null:
-		return initial_state.get_substate('paint')
-	if action['type'] == action_types.PAINT_SET_CURRENT_PAINT:
+		return initial_state.get_substate('dialogue')
+	if action['type'] == action_types.DIALOGUE_SET_NPC_POSITION:
 		var next_state = store.shallow_copy(state)
-		next_state['current_paint'] = action['current_paint']
+		next_state['npc_position'] = action['npc_position']
 		return next_state
-	if action['type'] == action_types.PAINT_SET_PAINT_INFO:
+	if action['type'] == action_types.DIALOGUE_SET_RABBIT_POSITION:
 		var next_state = store.shallow_copy(state)
-		next_state['paint_info'] = action['paint_info']
+		next_state['rabbit_position'] = action['rabbit_position']
 		return next_state
-	if action['type'] == action_types.PAINT_SET_PAINT_LIST:
+	if action['type'] == action_types.DIALOGUE_SET_QUEUE:
 		var next_state = store.shallow_copy(state)
-		next_state['paint_list'] = action['paint_list']
+		next_state['queue'] = action['queue']
 		return next_state
-	if action['type'] == action_types.PAINT_ADD_COLOR:
+	if action['type'] == action_types.DIALOGUE_POP_QUEUE:
 		var next_state = store.shallow_copy(state)
-		next_state['paint_list'].append(action['color'])
-		next_state['paint_info'][action['color']] = 100.0 # Percent left
-		return next_state
-	if action['type'] == action_types.PAINT_SET_RANDOM_PAINTS_LIST:
-		var next_state = store.shallow_copy(state)
-		next_state['random_paints_list'] = action['random_paints_list']
-		return next_state
-	if action['type'] == action_types.PAINT_REMOVE_COLOR:
-		var next_state = store.shallow_copy(state)
-		next_state['paint_list'].erase(action['color'])
-		next_state['paint_info'].erase(action['color'])
-		if next_state['current_paint'] == action['color']:
-			if next_state['paint_list'].size() > 0:
-				next_state['current_paint'] = next_state['paint_list'][0]
-			else:
-				next_state['current_paint'] = ''
+		if !next_state['queue'].empty():
+			next_state['queue'].pop_front()
 		return next_state
 	return state

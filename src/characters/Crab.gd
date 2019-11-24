@@ -1,20 +1,36 @@
 extends Node2D
 
-export var color_primary = Color('#f26860')
+const hover_tip = preload("res://src/things/HoverTip.tscn")
+
 const color_back_legs = Color('ef4a40')
 const color_secondary = Color('da1c11')
 const eye_color = Color('2a363b')
+export var color_primary = Color('#f26860')
 
 var starting_pos = Vector2(0, -20)
 var head_nb_points = 4
+
+var current_hover_tip
+var is_rabbit_in_speak_zone = false
+
+# State Tree
+var dialogue_queue_L = []
+var rabbit_position_L = Vector2(0, 0)
 
 # Animation
 var scale_rate = .04
 var current_scale = .9
 var scale_polarity = 1 # +1 or -1
 
+var game_day_L = 1
+var game_hour_L = 1
+var game_state_L = Globals.GameState.PLAYING
+var game_progress_L = Globals.GameProgress.BEDROOM
+
 func _ready():
-	pass
+	$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
+	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
+	store.subscribe(self, "_on_store_changed")
 
 func _process(delta):
 	current_scale += scale_rate * delta * scale_polarity
@@ -28,6 +44,62 @@ func _draw():
 	draw_legs()
 	draw_head()
 	draw_eyes()
+
+func _on_store_changed(name, state):
+	if store.get_state() == null:
+		return
+	if store.get_state()['dialogue']['queue'] != null:
+		dialogue_queue_L = store.get_state()['dialogue']['queue']
+		handle_next_dialogue(dialogue_queue_L)
+	if store.get_state()['dialogue']['rabbit_position'] != null:
+		rabbit_position_L = store.get_state()['dialogue']['rabbit_position']
+	if store.get_state()['game']['day'] != null:
+		game_day_L = store.get_state()['game']['day']
+	if store.get_state()['game']['hour'] != null:
+		game_hour_L = store.get_state()['game']['hour']
+	if store.get_state()['game']['state'] != null:
+		game_state_L = store.get_state()['game']['state']
+	if store.get_state()['game']['progress'] != null:
+		game_progress_L = store.get_state()['game']['progress']
+
+func handle_next_dialogue(queue):
+	if queue.empty():
+		return
+	
+	var next_dialogue_obj = queue.front()
+	var speaker = next_dialogue_obj['speaker']
+	
+	if speaker != name:
+		return
+	
+	var dialogue_text = next_dialogue_obj['text']
+	
+	print(name + ' says: ' + dialogue_text)
+	
+	store.dispatch(actions.dialogue_pop_queue())
+
+func _input(event):
+	if Input.is_key_pressed(KEY_E) and can_start_dialogue():
+		print('Attempted to speak with Rabbit!')
+		store.dispatch(actions.dialogue_set_npc_position(position))
+		store.dispatch(actions.dialogue_set_queue(get_next_dialogue()))
+
+func get_next_dialogue():
+	match game_progress_L:
+		Globals.GameProgress.BEDROOM: # TODO: BEDROOM won't work with Crab later
+			var next_dialogue = []
+			next_dialogue.push_back(create_dialogue_object(name, 'Hello Harley!'))
+			next_dialogue.push_back(create_dialogue_object('Rabbit', 'Hello Carl!'))
+			return next_dialogue
+
+func create_dialogue_object(speaker, text):
+	return {
+		'speaker': speaker,
+		'text': text
+	}
+
+func can_start_dialogue():
+	return is_rabbit_in_speak_zone and dialogue_queue_L.empty()
 
 func draw_legs():
 	var left_leg_center_offset = Vector2(0, 35)
@@ -125,3 +197,17 @@ func draw_circle_arc_custom(center, radius, angle_from, angle_to, trig_multiplie
 
 	draw_polygon(points_arc, colors)
 
+func _on_Area2D_body_entered(body):
+	if body.name == 'Rabbit' and current_hover_tip == null:
+#		print('Creating hover tip!')
+		current_hover_tip = hover_tip.instance()
+		add_child(current_hover_tip)
+		is_rabbit_in_speak_zone = true
+		actions.dialogue_set_rabbit_position(body.position)
+
+func _on_Area2D_body_exited(body):
+	if body.name == 'Rabbit' and current_hover_tip != null:
+#		print('Deleting hover tip!')
+		current_hover_tip.queue_free()
+		current_hover_tip = null
+		is_rabbit_in_speak_zone = false

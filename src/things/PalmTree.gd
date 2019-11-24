@@ -4,6 +4,7 @@ const trunk_color = Color(163.0/255.0, 86.0/255, 56.0/255, 230.0/255.0)
 const leaf_color = Color(25.0/255.0, 150.0/255, 25.0/255, 200.0/255.0)
 
 export var tree_height = 200
+export var is_tree_swaying = true
 var tree_width = 25
 var starting_pos = Vector2(0, 0)
 var sway_points = PoolVector2Array()
@@ -19,6 +20,7 @@ func _ready():
 	var trig_multiplier = 1.5
 	var nb_points = 32
 	sway_points = get_arc_points(Vector2(0, tree_center.y), tree_height, -90, 90, trig_multiplier, nb_points)
+	sway_index = sway_points.size() / 2
 	
 	var leaf_radius = 25
 	var leaf_trig = .8
@@ -71,9 +73,10 @@ func get_arc_points(center, radius, angle_from, angle_to, trig_multiplier, nb_po
 	return points_arc
 
 func _on_TrunkSwayTimer_timeout():
-	if sway_index == 0:
-		sway_direction = 1
-	elif sway_index >= sway_points.size() - 1:
-		sway_direction = -1
-	sway_index += sway_direction
-	update()
+	if is_tree_swaying:
+		if sway_index == 0:
+			sway_direction = 1
+		elif sway_index >= sway_points.size() - 1:
+			sway_direction = -1
+		sway_index += sway_direction
+		update()

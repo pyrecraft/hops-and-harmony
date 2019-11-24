@@ -7,8 +7,7 @@ onready var store = get_node('/root/store')
 func _ready():
 	store.create([
 		{'name': 'game', 'instance': reducers},
-		{'name': 'canvas', 'instance': reducers},
-		{'name': 'paint', 'instance': reducers}
+		{'name': 'dialogue', 'instance': reducers},
 	], [
 		{'name': '_on_store_changed', 'instance': self}
 	])

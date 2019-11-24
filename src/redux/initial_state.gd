@@ -3,8 +3,7 @@ extends Node
 static func get_state():
 	return {
 		'game': get_substate('game'),
-		'canvas': get_substate('canvas'),
-		'paint': get_substate('paint')
+		'dialogue': get_substate('dialogue')
 	}
 
 static func get_state_property(substate, key):
@@ -14,21 +13,28 @@ static func get_substate(substate):
 	match substate:
 		'game':
 			return {
-				'camera_limit_right': 1200,
 				'day': 1,
+				'hour': 1,
+				'state': Globals.GameState.PLAYING,
+				'progress': Globals.GameProgress.BEDROOM
 			}
-		'canvas':
+		'dialogue':
 			return {
-				'dimensions': Vector2(716, 420),
-				'starting_vector': Vector2(154, 90),
-				'grid': []
-			}
-		'paint':
-			return {
-				'paint_list': [], # Paint Order
-				'paint_info': {}, # Paint Info
-				'current_paint': '',
-				'random_paints_list': []
+				'queue': [],
+				'rabbit_position': Vector2(0, 0),
+				'npc_position': Vector2(0, 0)
 			}
 			
 	return {}
+
+# dialogue_queue object example:
+#[
+#	{
+#		'speaker': 'Rabbit',
+#		'text': 'Hello Carl!'
+#	},
+#	{
+#		'speaker': 'Crab',
+#		'text': 'Hi Harley how is it going?'
+#	}
+#]

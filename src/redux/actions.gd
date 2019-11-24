@@ -8,28 +8,45 @@ func game_set_day(day):
 		'day': day
 	}
 
+func game_set_hour(hour):
+	return {
+		'type': types.GAME_SET_HOUR,
+		'hour': hour
+	}
+
 func game_set_state(state):
 	return {
 		'type': types.GAME_SET_STATE,
 		'state': state
 	}
 
-func game_set_money(money):
+func game_set_progress(progress):
 	return {
-		'type': types.GAME_SET_MONEY,
-		'money': money
+		'type': types.GAME_SET_PROGRESS,
+		'progress': progress
 	}
 
-func game_set_mission(mission):
+func dialogue_set_queue(queue):
 	return {
-		'type': types.GAME_SET_MISSION,
-		'mission': mission
+		'type': types.DIALOGUE_SET_QUEUE,
+		'queue': queue
 	}
 
-func canvas_set_dimensions(dimensions):
+func dialogue_pop_queue():
 	return {
-		'type': types.CANVAS_SET_DIMENSIONS,
-		'dimensions': dimensions
+		'type': types.DIALOGUE_POP_QUEUE
+	}
+
+func dialogue_set_rabbit_position(rabbit_position):
+	return {
+		'type': types.DIALOGUE_SET_RABBIT_POSITION,
+		'rabbit_position': rabbit_position
+	}
+
+func dialogue_set_npc_position(npc_position):
+	return {
+		'type': types.DIALOGUE_SET_NPC_POSITION,
+		'npc_position': npc_position
 	}
 
 func canvas_set_starting_vector(vec):
@@ -48,40 +65,4 @@ func canvas_add_to_grid(grid):
 	return {
 		'type': types.CANVAS_SET_GRID,
 		'grid': grid
-	}
-
-func paint_set_paint_list(list):
-	return {
-		'type': types.PAINT_SET_PAINT_LIST,
-		'paint_list': list
-	}
-
-func paint_set_paint_info(info):
-	return {
-		'type': types.PAINT_SET_PAINT_INFO,
-		'paint_info': info
-	}
-
-func paint_add_paint(color):
-	return {
-		'type': types.PAINT_ADD_COLOR,
-		'color': color
-	}
-
-func paint_remove_color(color):
-	return {
-		'type': types.PAINT_REMOVE_COLOR,
-		'color': color
-	}
-
-func paint_set_random_paints_list(list):
-	return {
-		'type': types.PAINT_SET_RANDOM_PAINTS_LIST,
-		'random_paints_list': list
-	}
-
-func paint_set_current_paint(current):
-	return {
-		'type': types.PAINT_SET_CURRENT_PAINT,
-		'current_paint': current
 	}
