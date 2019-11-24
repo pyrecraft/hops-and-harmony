@@ -1,8 +1,8 @@
 extends KinematicBody2D
 
 const color_eyes = Color('#2a363b')
-const color_pink = Color('#f78dae')
-const color_primary = Color('#dcb6b6')
+const color_pink = Color('#64ccda')
+const color_primary = Color('#c9d1d3')
 const walk_smoke = preload('res://src/effects/WalkSmoke.tscn')
 
 # Movement
@@ -12,7 +12,7 @@ var jump_speed = -500
 var velocity = Vector2()
 
 # Animation
-var scale_rate = .1
+var scale_rate = .5
 var current_scale = .9
 var scale_polarity = 1 # +1 or -1
 var circle_center = Vector2(0, -10)
@@ -80,8 +80,6 @@ func _process(delta):
 
 func _physics_process(delta):
 	set_velocities(delta)
-#	clamp_pos_to_screen()
-	check_for_water_death()
 
 func check_for_water_death():
 	if position.x < 200 and position.y > 1000: # Left side death
@@ -117,25 +115,26 @@ func handle_states(delta):
 					current_rabbit_state = RabbitState.WALKING
 				else:
 					current_rabbit_state = RabbitState.IDLE
-				spawn_landing_smoke()
+#				spawn_landing_smoke()
 				current_scale = .85
 				scale_polarity = 1
 				scale_rate = .3
 
 func set_velocities(delta):
-	velocity.x = 0
+#	velocity.x = 0
 	velocity.y += gravity * delta
-	if is_walking_right():
-		velocity.x += walk_speed
-	if is_walking_left():
-		velocity.x -= walk_speed
-	if Input.is_key_pressed(KEY_SPACE) and is_on_floor():
-		velocity.y = jump_speed
+#	if is_walking_right():
+#		velocity.x += walk_speed
+#	if is_walking_left():
+#		velocity.x -= walk_speed
+#	if Input.is_key_pressed(KEY_SPACE) and is_on_floor():
+#		velocity.y = jump_speed
 
 	velocity = move_and_slide(velocity, Vector2(0, -1))
 
 func is_walking_left():
-	return Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A)
+	return true
+#	return Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A)
 
 func is_walking_right():
 	return Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D)
@@ -157,18 +156,18 @@ func _draw():
 	draw_head()
 
 func draw_body():
-	draw_circle_arc_custom(circle_center, 40, 0, 180, color_primary)
-	draw_circle_arc_custom(circle_center, 40, 180, 360, color_primary)
+	draw_circle_arc_custom(circle_center, 45, 0, 180, color_primary)
+	draw_circle_arc_custom(circle_center, 45, 180, 360, color_primary)
 
 var head_offset_x = 0
 func draw_head():
-	var head_offset_y = 50.0 * current_scale
+	var head_offset_y = 55.0 * current_scale
 	if is_walking_right():
 		head_offset_x = 5
 	if is_walking_left():
 		head_offset_x = -5
 	var head_position = Vector2(circle_center.x + head_offset_x, circle_center.y - head_offset_y)
-	draw_circle_custom(head_position, 25, color_primary)
+	draw_circle_custom(head_position, 27.5, color_primary)
 	draw_face(head_position, head_offset_x)
 	draw_ears(head_position, head_offset_x)
 
@@ -177,7 +176,7 @@ func draw_ears(head_vec, head_offset_x):
 	var ear_distance_y := 35.0
 	var ear_radius := 8.0
 	var inner_ear_radius := 4.0
-	var ear_offset_x = head_offset_x
+	var ear_offset_x = head_offset_x * 1.5
 	
 	var left_ear_pos = Vector2(head_vec.x - ear_between_distance - head_offset_x, head_vec.y - ear_distance_y)
 	var right_ear_pos = Vector2(head_vec.x + ear_between_distance - head_offset_x, head_vec.y - ear_distance_y)

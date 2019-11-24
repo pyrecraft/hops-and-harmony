@@ -2,6 +2,8 @@ extends Node2D
 
 signal text_complete
 
+export var outline_color = Color.black
+
 export var font_height = 26
 export var font_width = 16
 export var full_text = ''
@@ -13,7 +15,27 @@ var top_down_offset = 0 # translate into box margin left/right changes
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$RichTextLabel.bbcode_text = ''
-	set_text('What are you talking about?')
+	full_text = ''
+	update_dialogue_box('', font_height, font_width)
+	$RichTextLabel.visible_characters = 0
+
+func _input(event):
+	if Input.is_key_pressed(KEY_E) and !is_empty():
+#		if $RichTextLabel.visible_characters >= full_text.length():
+#			emit_signal("text_complete")
+#			$TextTimer.stop()
+#			$TTLTimer.stop()
+#		else:
+#			$RichTextLabel.visible_characters = full_text.length()
+		$RichTextLabel.visible_characters = full_text.length()
+
+func is_empty():
+	return full_text == '' or full_text == null or full_text.length() == 0
+
+func clear_text():
+	full_text = ''
+	update_dialogue_box('', font_height, font_width)
+	$RichTextLabel.visible_characters = 0
 
 func update_dialogue_box(text, font_height, font_width):
 	var box_dimens = get_dialogue_box_dimensions(text, font_height, font_width)
@@ -32,10 +54,13 @@ func set_text(text):
 	$RichTextLabel.visible_characters = 0
 	$TextTimer.start()
 
+func queue_clear_text():
+	$ClearTextTimer.start()
+
 func _draw():
 	pass
-	draw_rect(Rect2(Vector2(-left_right_offset, -top_down_offset * 2.0), \
-		Vector2(left_right_offset * 2.0, top_down_offset * 2.0)), Color.blue)
+#	draw_rect(Rect2(Vector2(-left_right_offset, -top_down_offset * 2.0), \
+#		Vector2(left_right_offset * 2.0, top_down_offset * 2.0)), Color.blue)
 
 func get_dialogue_box_dimensions(text, f_height, f_width):
 	if text == null or text.length() == 0:
@@ -72,7 +97,6 @@ func get_squared_vector(multiplier, words, nums, sum, max_num, f_height, f_width
 	var max_line_width = 0
 	while num_index < nums.size():
 		if current_line_width_remaining - current_num >= 0:
-			print(words[num_index])
 			current_line_width_remaining -= current_num
 			num_index += 1
 			if width - current_line_width_remaining > max_line_width:
@@ -114,11 +138,18 @@ func get_max_num(nums):
 func _on_TextTimer_timeout():
 	$RichTextLabel.visible_characters += 1
 	if $RichTextLabel.visible_characters >= full_text.length():
-		emit_signal("text_complete")
-		print('Text complete!')
 		$TextTimer.stop()
+		$TTLTimer.start()
 	else:
 		update()
 		$TextTimer.start()
 #		update_dialogue_box(full_text.substr(0, $RichTextLabel.visible_characters), \
 #			font_height, font_width)
+
+func _on_TTLTimer_timeout():
+	emit_signal("text_complete")
+
+func _on_ClearTextTimer_timeout():
+	full_text = ''
+	update_dialogue_box('', font_height, font_width)
+	$RichTextLabel.visible_characters = 0

@@ -30,7 +30,10 @@ var game_progress_L = Globals.GameProgress.BEDROOM
 func _ready():
 	$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
 	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
+	$ShowStartTextTimer.connect("timeout", self, "_on_ShowStartTextTimer_timeout")
 	store.subscribe(self, "_on_store_changed")
+	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
+	$DialogueBox.clear_text()
 
 func _process(delta):
 	current_scale += scale_rate * delta * scale_polarity
@@ -51,6 +54,7 @@ func _on_store_changed(name, state):
 	if store.get_state()['dialogue']['queue'] != null:
 		dialogue_queue_L = store.get_state()['dialogue']['queue']
 		handle_next_dialogue(dialogue_queue_L)
+		handle_hover_tip(dialogue_queue_L)
 	if store.get_state()['dialogue']['rabbit_position'] != null:
 		rabbit_position_L = store.get_state()['dialogue']['rabbit_position']
 	if store.get_state()['game']['day'] != null:
@@ -62,8 +66,22 @@ func _on_store_changed(name, state):
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
 
+func _on_ShowStartTextTimer_timeout():
+	current_hover_tip.show()
+
+func handle_hover_tip(queue):
+#	if !queue.empty() and current_hover_tip != null:
+#		current_hover_tip.queue_free()
+#		current_hover_tip = null
+	if !queue.empty() and current_hover_tip != null:
+		current_hover_tip.queue_free()
+		current_hover_tip = null
+#	elif queue.empty() and current_hover_tip != null:
+#		$ShowStartTextTimer.start()
+
 func handle_next_dialogue(queue):
 	if queue.empty():
+		$DialogueBox.clear_text()
 		return
 	
 	var next_dialogue_obj = queue.front()
@@ -74,8 +92,9 @@ func handle_next_dialogue(queue):
 	
 	var dialogue_text = next_dialogue_obj['text']
 	
-	print(name + ' says: ' + dialogue_text)
-	
+	$DialogueBox.set_text(dialogue_text)
+
+func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
 
 func _input(event):
@@ -90,6 +109,8 @@ func get_next_dialogue():
 			var next_dialogue = []
 			next_dialogue.push_back(create_dialogue_object(name, 'Hello Harley!'))
 			next_dialogue.push_back(create_dialogue_object('Rabbit', 'Hello Carl!'))
+			next_dialogue.push_back(create_dialogue_object(name, "It's a fine day today isn't it?"))
+			next_dialogue.push_back(create_dialogue_object('Rabbit', "Yes can't let it go to waste!"))
 			return next_dialogue
 
 func create_dialogue_object(speaker, text):
@@ -99,7 +120,8 @@ func create_dialogue_object(speaker, text):
 	}
 
 func can_start_dialogue():
-	return is_rabbit_in_speak_zone and dialogue_queue_L.empty()
+	return is_rabbit_in_speak_zone and dialogue_queue_L.empty() \
+		and (current_hover_tip != null and current_hover_tip.visible)
 
 func draw_legs():
 	var left_leg_center_offset = Vector2(0, 35)

@@ -15,7 +15,7 @@ func _ready():
 
 func _process(delta):
 	position.x += cloud_movement_rate * delta
-	if position.x > 7000:
+	if position.x > 10000:
 		queue_free()
 
 func set_position(pos):

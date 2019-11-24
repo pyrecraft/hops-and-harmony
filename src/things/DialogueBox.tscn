@@ -1,10 +1,18 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/things/DialogueBox.gd" type="Script" id=1]
-[ext_resource path="res://fonts/WakuWakuFont.tres" type="DynamicFont" id=2]
+
+[sub_resource type="DynamicFontData" id=1]
+antialiased = false
+font_path = "res://fonts/mini-wakuwaku-maru.otf"
+
+[sub_resource type="DynamicFont" id=2]
+size = 25
+outline_size = 2
+outline_color = Color( 0.94902, 0.407843, 0.376471, 1 )
+font_data = SubResource( 1 )
 
 [node name="DialogueBox" type="Node2D"]
-position = Vector2( 212.749, 288.043 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_group_": true
@@ -15,12 +23,20 @@ margin_left = -60.0
 margin_top = -60.0
 margin_right = 60.0
 margin_bottom = 60.0
-custom_fonts/normal_font = ExtResource( 2 )
+custom_fonts/normal_font = SubResource( 2 )
 bbcode_enabled = true
-bbcode_text = "Hi Carl how is it going?"
-text = "Hi Carl how is it going?"
+bbcode_text = "It's a fine day today!"
+text = "It's a fine day today!"
 scroll_active = false
 
 [node name="TextTimer" type="Timer" parent="."]
-wait_time = 0.05
+wait_time = 0.04
+
+[node name="TTLTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="ClearTextTimer" type="Timer" parent="."]
+one_shot = true
 [connection signal="timeout" from="TextTimer" to="." method="_on_TextTimer_timeout"]
+[connection signal="timeout" from="TTLTimer" to="." method="_on_TTLTimer_timeout"]
+[connection signal="timeout" from="ClearTextTimer" to="." method="_on_ClearTextTimer_timeout"]
