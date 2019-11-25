@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://src/places/MainIsland.gd" type="Script" id=1]
 [ext_resource path="res://src/places/Burrow.tscn" type="PackedScene" id=2]
@@ -16,6 +16,7 @@
 [ext_resource path="res://src/lighting/DayNightCycle.tscn" type="PackedScene" id=14]
 [ext_resource path="res://src/places/MiniIsland.tscn" type="PackedScene" id=15]
 [ext_resource path="res://src/things/IslandWaterSprite.tscn" type="PackedScene" id=16]
+[ext_resource path="res://audio/toto-harley-nighttime.ogg" type="AudioStream" id=17]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 1908.32, 24.9725 )
@@ -82,6 +83,7 @@ script = ExtResource( 1 )
 position = Vector2( 876.155, 469.369 )
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+editor/display_folded = true
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
 editor/display_folded = true
@@ -128,6 +130,7 @@ valley_nb_points = 30
 y_offset = 200
 
 [node name="Floor" type="StaticBody2D" parent="."]
+editor/display_folded = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
 position = Vector2( 2032.97, 475.663 )
@@ -138,6 +141,7 @@ wait_time = 20.0
 autostart = true
 
 [node name="BackgroundCanvas" type="CanvasLayer" parent="."]
+editor/display_folded = true
 layer = -2
 
 [node name="Background" parent="BackgroundCanvas" instance=ExtResource( 4 )]
@@ -331,7 +335,7 @@ n3 = 2.6
 position = Vector2( 213.277, 438.402 )
 
 [node name="Rabbit" parent="Characters" instance=ExtResource( 11 )]
-position = Vector2( 557.25, 300 )
+position = Vector2( 876.222, 403.496 )
 
 [node name="Turtle" parent="Characters" instance=ExtResource( 12 )]
 position = Vector2( 1440.48, 172.978 )
@@ -344,12 +348,17 @@ position = Vector2( 2442.1, 237.06 )
 color_primary = Color( 0.898039, 0.690196, 0.917647, 1 )
 
 [node name="DayNightCycle" parent="." instance=ExtResource( 14 )]
+visible = false
 
 [node name="MiniIsland" parent="." instance=ExtResource( 15 )]
 position = Vector2( 7222.04, 551.305 )
 
 [node name="IslandWaterSprite" parent="." instance=ExtResource( 16 )]
 position = Vector2( 0, 334.633 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 17 )
+autoplay = true
 [connection signal="timeout" from="CloudTimer" to="." method="_on_CloudTimer_timeout"]
 
 [editable path="Rocks/Rock"]

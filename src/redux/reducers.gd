@@ -46,4 +46,22 @@ func dialogue(state, action):
 		if !next_state['queue'].empty():
 			next_state['queue'].pop_front()
 		return next_state
+	if action['type'] == action_types.DIALOGUE_SET_CRAB_DICT:
+		var next_state = store.shallow_copy(state)
+		next_state['crab_dict'] = action['crab_dict']
+		return next_state
+	if action['type'] == action_types.DIALOGUE_INCREMENT_CRAB_DICT:
+		var next_state = store.shallow_copy(state)
+		var game_progress_index = action['game_progress_index']
+		next_state['crab_dict'][game_progress_index] += 1
+		return next_state
+	if action['type'] == action_types.DIALOGUE_SET_FATHER_DICT:
+		var next_state = store.shallow_copy(state)
+		next_state['father_dict'] = action['father_dict']
+		return next_state
+	if action['type'] == action_types.DIALOGUE_INCREMENT_FATHER_DICT:
+		var next_state = store.shallow_copy(state)
+		var game_progress_index = action['game_progress_index']
+		next_state['father_dict'][game_progress_index] += 1
+		return next_state
 	return state

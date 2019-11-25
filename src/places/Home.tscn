@@ -1,10 +1,10 @@
 [gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://src/places/Home.gd" type="Script" id=1]
-[ext_resource path="res://src/characters/Rabbit.tscn" type="PackedScene" id=2]
-[ext_resource path="res://src/things/Background.tscn" type="PackedScene" id=3]
-[ext_resource path="res://src/characters/FatherRabbit.tscn" type="PackedScene" id=4]
-[ext_resource path="res://src/things/ReturnToIsland.tscn" type="PackedScene" id=5]
+[ext_resource path="res://src/things/Background.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/characters/FatherRabbit.tscn" type="PackedScene" id=3]
+[ext_resource path="res://src/things/ReturnToIsland.tscn" type="PackedScene" id=4]
+[ext_resource path="res://audio/incidental-music.ogg" type="AudioStream" id=5]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 400, 10 )
@@ -57,20 +57,19 @@ shape = SubResource( 4 )
 position = Vector2( -165.315, -665.357 )
 shape = SubResource( 5 )
 
-[node name="Rabbit" parent="." instance=ExtResource( 2 )]
-position = Vector2( -74.469, 37.0444 )
-
 [node name="BackgroundCanvas" type="CanvasLayer" parent="."]
 layer = -2
 
-[node name="Background" parent="BackgroundCanvas" instance=ExtResource( 3 )]
+[node name="Background" parent="BackgroundCanvas" instance=ExtResource( 2 )]
 z_index = -2
 z_as_relative = false
 
-[node name="FatherRabbit" parent="." instance=ExtResource( 4 )]
-position = Vector2( 299.206, 38.2546 )
+[node name="FatherRabbit" parent="." instance=ExtResource( 3 )]
+position = Vector2( 299.206, 153.831 )
 
-[node name="ReturnToIsland" parent="." instance=ExtResource( 5 )]
+[node name="ReturnToIsland" parent="." instance=ExtResource( 4 )]
 position = Vector2( -489.825, -25.6837 )
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+autoplay = true

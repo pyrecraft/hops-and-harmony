@@ -17,7 +17,7 @@ func _ready():
 	$HoverTalkTip.hide()
 
 func _input(event):
-	if Input.is_key_pressed(KEY_E) and $HoverTalkTip.visible:
+	if Input.is_key_pressed(KEY_S) and $HoverTalkTip.visible:
 		print('Attempted to go into hole.')
 		get_tree().change_scene("res://src/places/Home.tscn")
 

@@ -1,5 +1,6 @@
 extends KinematicBody2D
 
+const initial_state = preload("res://src/redux/initial_state.gd")
 const color_eyes = Color('#2a363b')
 const color_pink = Color('#f78dae')
 const color_primary = Color('#dcb6b6')
@@ -25,23 +26,30 @@ var npc_position_L = Vector2(0, 0)
 var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
-var game_progress_L = Globals.GameProgress.BEDROOM
+var game_progress_L = Globals.GameProgress.GAME_START
 
 enum RabbitState {
 	IDLE,
 	WALKING,
-	JUMPING
+	JUMPING,
+	TALKING
 }
 
 func _ready():
 	store.subscribe(self, "_on_store_changed")
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
+	game_progress_L = initial_state.get_state()['game']['progress']
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
-	if dialogue_queue_L.empty():
+	if dialogue_queue_L.empty() or dialogue_queue_L.size() == 1: # About to pop this last message
 		$DialogueBox.queue_clear_text()
+		print('Rabbit finished talking.')
+		current_rabbit_state = RabbitState.IDLE
+
+func set_position(pos):
+	position = pos
 
 func _on_store_changed(name, state):
 	if store.get_state() == null:
@@ -62,16 +70,20 @@ func _on_store_changed(name, state):
 
 func handle_next_dialogue(queue):
 	if queue.empty():
+		$DialogueBox.clear_text()
+		if current_rabbit_state == RabbitState.TALKING:
+			current_rabbit_state = RabbitState.IDLE
 		return
 	
 	var next_dialogue_obj = queue.front()
 	var speaker = next_dialogue_obj['speaker']
+	print('Rabbit in TALKING state')
+	current_rabbit_state = RabbitState.TALKING
 	
 	if speaker != name:
 		return
 	
 	var dialogue_text = next_dialogue_obj['text']
-	
 	$DialogueBox.set_text(dialogue_text)
 
 func _process(delta):
@@ -121,16 +133,19 @@ func handle_states(delta):
 				current_scale = .85
 				scale_polarity = 1
 				scale_rate = .3
+		RabbitState.TALKING:
+			pass
 
 func set_velocities(delta):
 	velocity.x = 0
 	velocity.y += gravity * delta
-	if is_walking_right():
-		velocity.x += walk_speed
-	if is_walking_left():
-		velocity.x -= walk_speed
-	if Input.is_key_pressed(KEY_SPACE) and is_on_floor():
-		velocity.y = jump_speed
+	if !current_rabbit_state == RabbitState.TALKING:
+		if is_walking_right():
+			velocity.x += walk_speed
+		if is_walking_left():
+			velocity.x -= walk_speed
+		if Input.is_key_pressed(KEY_SPACE) and is_on_floor():
+			velocity.y = jump_speed
 
 	velocity = move_and_slide(velocity, Vector2(0, -1))
 

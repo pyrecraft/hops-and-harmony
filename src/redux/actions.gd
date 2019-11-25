@@ -49,6 +49,30 @@ func dialogue_set_npc_position(npc_position):
 		'npc_position': npc_position
 	}
 
+func dialogue_set_crab_dict(crab_dict):
+	return {
+		'type': types.DIALOGUE_SET_CRAB_DICT,
+		'crab_dict': crab_dict
+	}
+
+func dialogue_increment_crab_dict(game_progress_index):
+	return {
+		'type': types.DIALOGUE_INCREMENT_CRAB_DICT,
+		'game_progress_index': game_progress_index
+	}
+
+func dialogue_set_father_dict(father_dict):
+	return {
+		'type': types.DIALOGUE_SET_FATHER_DICT,
+		'father_dict': father_dict
+	}
+
+func dialogue_increment_father_dict(game_progress_index):
+	return {
+		'type': types.DIALOGUE_INCREMENT_FATHER_DICT,
+		'game_progress_index': game_progress_index
+	}
+
 func canvas_set_starting_vector(vec):
 	return {
 		'type': types.CANVAS_SET_STARTING_VECTOR,

@@ -24,6 +24,8 @@ var current_time
 var current_day_hour
 var current_day_number
 
+var previous_day_hour
+
 var transition_duration
 
 var cycle
@@ -31,6 +33,7 @@ enum cycle_state { NIGHT, DAWN, DAY, DUSK }
 
 
 func _ready():
+	store.subscribe(self, "_on_store_changed")
 	if not on:
 		queue_free()
 
@@ -38,9 +41,12 @@ func _ready():
 
 	day_duration = 60 * 60 * day_duration # Convert 'day_duration' from minutes to seconds
 
-	current_day_number = day_start_number
-	current_time = (day_duration / 24) * day_start_hour
-	current_day_hour = current_time / (day_duration / 24)
+#	current_day_number = day_start_number
+	current_day_number = Globals.get_state_value("game", "day")
+#	current_day_hour = current_time / (day_duration / 24)
+	current_day_hour = Globals.get_state_value("game", "hour")
+	current_time = (day_duration / 24) * current_day_hour
+	previous_day_hour = current_day_hour
 
 	transition_duration = (((day_duration / 24) * state_transition_duration) / 60)
 
@@ -57,19 +63,43 @@ func _ready():
 		cycle = cycle_state.DUSK
 		color = color_dusk
 
+func _on_store_changed(name, state):
+	if store.get_state() == null:
+		return
+#	if store.get_state()['dialogue']['queue'] != null:
+#		dialogue_queue_L = store.get_state()['dialogue']['queue']
+#		handle_next_dialogue(dialogue_queue_L)
+#	if store.get_state()['dialogue']['npc_position'] != null:
+#		npc_position_L = store.get_state()['dialogue']['npc_position']
+#	if store.get_state()['game']['day'] != null:
+#		game_day_L = store.get_state()['game']['day']
+#	if store.get_state()['game']['hour'] != null:
+#		game_hour_L = store.get_state()['game']['hour']
+#	if store.get_state()['game']['state'] != null:
+#		game_state_L = store.get_state()['game']['state']
+#	if store.get_state()['game']['progress'] != null:
+#		game_progress_L = store.get_state()['game']['progress']
 
 func _physics_process(delta):
 	day_cycle()
 	current_time += 1
 
-
 func day_cycle():
-	current_day_hour = current_time / (day_duration / 24)
+	current_day_hour = int(current_time / (day_duration / 24))
+	
+	if current_day_hour != previous_day_hour:
+		print('Updating hour to ' + str(current_day_hour))
+		store.dispatch(actions.game_set_hour(current_day_hour))
+		previous_day_hour = int(current_day_hour)
 
 	if current_time >= day_duration:
 		current_time = 0
 		current_day_hour = 0
 		current_day_number += 1
+		store.dispatch(actions.game_set_hour(current_day_hour))
+		print('Updating hour to ' + str(current_day_hour))
+		store.dispatch(actions.game_set_day(current_day_number))
+		print('Updating day to ' + str(current_day_number))
 
 	if current_day_hour >= state_night_start_hour or current_day_hour < state_dawn_start_hour:
 		cycle_test(cycle_state.NIGHT)

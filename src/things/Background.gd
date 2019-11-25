@@ -8,7 +8,7 @@ var land_end_pos = Vector2(3900, 450)
 var colors_array = [Color('384259'), Color('004a7c'), Color('3490de'), Color('a1eafb'), \
 	Color('55e9bc'), Color('55e9bc')] # Stardew Valley
 var home_colors_array = [Color('bd574e'), Color('f9b282'), Color('de6b35'), Color('8f4426'), \
-	Color('bd574e'), Color('f9b282'), Color('de6b35'), Color('8f4426')]
+	Color('bd574e'), Color('f9b282'), Color('411d10'), Color('411d10')]
 var color_gradient = Gradient.new()
 var is_home = false
 

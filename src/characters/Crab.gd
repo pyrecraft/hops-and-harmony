@@ -1,6 +1,7 @@
 extends Node2D
 
 const hover_tip = preload("res://src/things/HoverTip.tscn")
+const initial_state = preload("res://src/redux/initial_state.gd")
 
 const color_back_legs = Color('ef4a40')
 const color_secondary = Color('da1c11')
@@ -15,6 +16,7 @@ var is_rabbit_in_speak_zone = false
 
 # State Tree
 var dialogue_queue_L = []
+var crab_dict_L = {}
 var rabbit_position_L = Vector2(0, 0)
 
 # Animation
@@ -25,7 +27,7 @@ var scale_polarity = 1 # +1 or -1
 var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
-var game_progress_L = Globals.GameProgress.BEDROOM
+var game_progress_L = Globals.GameProgress.GAME_START
 
 func _ready():
 	$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
@@ -34,6 +36,8 @@ func _ready():
 	store.subscribe(self, "_on_store_changed")
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
+	game_progress_L = initial_state.get_state()['game']['progress']
+	crab_dict_L = initial_state.get_state()['dialogue']['crab_dict']
 
 func _process(delta):
 	current_scale += scale_rate * delta * scale_polarity
@@ -65,19 +69,16 @@ func _on_store_changed(name, state):
 		game_state_L = store.get_state()['game']['state']
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
+	if store.get_state()['dialogue']['crab_dict'] != null:
+		crab_dict_L = store.get_state()['dialogue']['crab_dict']
 
 func _on_ShowStartTextTimer_timeout():
 	current_hover_tip.show()
 
 func handle_hover_tip(queue):
-#	if !queue.empty() and current_hover_tip != null:
-#		current_hover_tip.queue_free()
-#		current_hover_tip = null
 	if !queue.empty() and current_hover_tip != null:
 		current_hover_tip.queue_free()
 		current_hover_tip = null
-#	elif queue.empty() and current_hover_tip != null:
-#		$ShowStartTextTimer.start()
 
 func handle_next_dialogue(queue):
 	if queue.empty():
@@ -105,12 +106,36 @@ func _input(event):
 
 func get_next_dialogue():
 	match game_progress_L:
-		Globals.GameProgress.BEDROOM: # TODO: BEDROOM won't work with Crab later
+		Globals.GameProgress.TALKED_TO_DAD:
 			var next_dialogue = []
-			next_dialogue.push_back(create_dialogue_object(name, 'Hello Harley!'))
-			next_dialogue.push_back(create_dialogue_object('Rabbit', 'Hello Carl!'))
-			next_dialogue.push_back(create_dialogue_object(name, "It's a fine day today isn't it?"))
-			next_dialogue.push_back(create_dialogue_object('Rabbit', "Yes can't let it go to waste!"))
+			match crab_dict_L[game_progress_L]:
+				0:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Holy crab"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Are you new to this island?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Actually yeah!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "This is my first day!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Lose the excitement sweetie"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "There's nothing interesting here"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Oh.."))
+				1:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "You say Hi"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "I say Why"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "You say Hi"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "I say Why"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "'Why' are you so bitter?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "The world is a bitter place"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "I'm being realistic"))
+				
+			store.dispatch(actions.dialogue_increment_crab_dict(game_progress_L))
 			return next_dialogue
 
 func create_dialogue_object(speaker, text):

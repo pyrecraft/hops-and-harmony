@@ -9,7 +9,7 @@ const turtle_eye_color = Color('#2a363b')
 
 # Movement
 var gravity = 1000
-var walk_speed = 100
+var walk_speed = 80
 var jump_speed = -1000
 var velocity = Vector2()
 var normal_vec = Vector2(0, 0)
@@ -56,6 +56,13 @@ func _physics_process(delta):
 	if is_colliding_with_rabbit() and !is_in_shell:
 		go_into_shell()
 		$ShellTimer.start()
+	check_for_water_death()
+
+func check_for_water_death():
+	if position.x < 200 and position.y > 1000: # Left side death
+		position = Vector2(150, 350)
+	if position.x > 3000 and position.y > 1000:
+		position = Vector2(3850, 350)
 
 func is_colliding_with_rabbit():
 	for i in get_slide_count():
@@ -117,6 +124,10 @@ func handle_leg_states(delta, index):
 func set_velocities(delta):
 	velocity.x = 0
 	velocity.y += gravity * delta
+	if position.x < 200 and is_moving_left:
+		is_moving_left = false
+	elif position.x > 3800 and !is_moving_left:
+		is_moving_left = true
 	if is_in_shell:
 		pass
 	elif is_moving_left:

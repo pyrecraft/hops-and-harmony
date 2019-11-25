@@ -20,5 +20,5 @@ shape = SubResource( 1 )
 current = true
 
 [node name="DialogueBox" parent="." instance=ExtResource( 2 )]
-position = Vector2( 0, -117.66 )
+position = Vector2( 0, -129.233 )
 [connection signal="timeout" from="WalkSmokeTimer" to="." method="_on_WalkSmokeTimer_timeout"]

@@ -1,5 +1,8 @@
 extends KinematicBody2D
 
+const hover_tip = preload("res://src/things/HoverTip.tscn")
+const initial_state = preload("res://src/redux/initial_state.gd")
+
 const color_eyes = Color('#2a363b')
 const color_pink = Color('#64ccda')
 const color_primary = Color('#c9d1d3')
@@ -15,17 +18,19 @@ var velocity = Vector2()
 var scale_rate = .5
 var current_scale = .9
 var scale_polarity = 1 # +1 or -1
-var circle_center = Vector2(0, -10)
+var circle_center = Vector2(0, -17)
 var current_rabbit_state = RabbitState.IDLE
+var current_hover_tip
+var is_rabbit_in_speak_zone = false
 
 # State Tree
 var dialogue_queue_L = []
-var npc_position_L = Vector2(0, 0)
+var rabbit_position_L = Vector2(0, 0)
 
 var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
-var game_progress_L = Globals.GameProgress.BEDROOM
+var game_progress_L = Globals.GameProgress.GAME_START
 
 enum RabbitState {
 	IDLE,
@@ -35,8 +40,32 @@ enum RabbitState {
 
 func _ready():
 	store.subscribe(self, "_on_store_changed")
+	$ShowStartTextTimer.connect("timeout", self, "_on_ShowStartTextTimer_timeout")
+	$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
+	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
+	game_progress_L = initial_state.get_state()['game']['progress']
+
+func _on_ShowStartTextTimer_timeout():
+	current_hover_tip.show()
+
+func _on_Area2D_body_entered(body):
+	if body.name == 'Rabbit' and current_hover_tip == null:
+#		print('Creating hover tip!')
+		current_hover_tip = hover_tip.instance()
+		add_child(current_hover_tip)
+		current_hover_tip.z_index = 1
+		current_hover_tip.set_box_position(Vector2(-13, -170))
+		is_rabbit_in_speak_zone = true
+		actions.dialogue_set_rabbit_position(body.position)
+
+func _on_Area2D_body_exited(body):
+	if body.name == 'Rabbit' and current_hover_tip != null:
+#		print('Deleting hover tip!')
+		current_hover_tip.queue_free()
+		current_hover_tip = null
+		is_rabbit_in_speak_zone = false
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
@@ -49,8 +78,9 @@ func _on_store_changed(name, state):
 	if store.get_state()['dialogue']['queue'] != null:
 		dialogue_queue_L = store.get_state()['dialogue']['queue']
 		handle_next_dialogue(dialogue_queue_L)
-	if store.get_state()['dialogue']['npc_position'] != null:
-		npc_position_L = store.get_state()['dialogue']['npc_position']
+		handle_hover_tip(dialogue_queue_L)
+	if store.get_state()['dialogue']['rabbit_position'] != null:
+		rabbit_position_L = store.get_state()['dialogue']['rabbit_position']
 	if store.get_state()['game']['day'] != null:
 		game_day_L = store.get_state()['game']['day']
 	if store.get_state()['game']['hour'] != null:
@@ -59,6 +89,11 @@ func _on_store_changed(name, state):
 		game_state_L = store.get_state()['game']['state']
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
+
+func handle_hover_tip(queue):
+	if !queue.empty() and current_hover_tip != null:
+		current_hover_tip.queue_free()
+		current_hover_tip = null
 
 func handle_next_dialogue(queue):
 	if queue.empty():
@@ -71,8 +106,40 @@ func handle_next_dialogue(queue):
 		return
 	
 	var dialogue_text = next_dialogue_obj['text']
-	
 	$DialogueBox.set_text(dialogue_text)
+
+func _input(event):
+	if Input.is_key_pressed(KEY_E) and can_start_dialogue():
+		print('Attempted to speak with Rabbit!')
+		store.dispatch(actions.dialogue_set_npc_position(position))
+		store.dispatch(actions.dialogue_set_queue(get_next_dialogue()))
+		store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_DAD))
+
+func get_next_dialogue():
+	match game_progress_L:
+		Globals.GameProgress.GAME_START:
+			var next_dialogue = []
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Harley!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Dad!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Do you know what today is?"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What's today?"))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "A ta-hare-iffic day!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..."))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "But seriously though"))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Today is the day you are all grown up"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "One might say"))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You now have a full head of hare!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..."))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You're old enough to be on your own"))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Go head on up and see what the world holds!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', ""))
+			return next_dialogue
+
+func can_start_dialogue():
+	return is_rabbit_in_speak_zone and dialogue_queue_L.empty() \
+		and (current_hover_tip != null and current_hover_tip.visible)
 
 func _process(delta):
 	handle_states(delta)

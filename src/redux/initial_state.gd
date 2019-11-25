@@ -14,18 +14,25 @@ static func get_substate(substate):
 		'game':
 			return {
 				'day': 1,
-				'hour': 1,
+				'hour': 20,
 				'state': Globals.GameState.PLAYING,
-				'progress': Globals.GameProgress.BEDROOM
+				'progress': Globals.GameProgress.TALKED_TO_DAD
 			}
 		'dialogue':
 			return {
 				'queue': [],
 				'rabbit_position': Vector2(0, 0),
-				'npc_position': Vector2(0, 0)
+				'npc_position': Vector2(0, 0),
+				'crab_dict': get_init_dict(),
+				'father_dict': get_init_dict()
 			}
-			
 	return {}
+
+static func get_init_dict():
+	var dict = {}
+	for i in range(0, Globals.GAME_PROGRESS_TOTAL_STATES):
+		dict[i] = 0
+	return dict
 
 # dialogue_queue object example:
 #[
