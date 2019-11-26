@@ -14,6 +14,12 @@ func game_set_hour(hour):
 		'hour': hour
 	}
 
+func game_set_has_coconut(has_coconut):
+	return {
+		'type': types.GAME_SET_HAS_COCONUT,
+		'has_coconut': has_coconut
+	}
+
 func game_set_state(state):
 	return {
 		'type': types.GAME_SET_STATE,
@@ -58,6 +64,24 @@ func dialogue_set_crab_dict(crab_dict):
 func dialogue_increment_crab_dict(game_progress_index):
 	return {
 		'type': types.DIALOGUE_INCREMENT_CRAB_DICT,
+		'game_progress_index': game_progress_index
+	}
+
+func dialogue_increment_songbird_green_dict(game_progress_index):
+	return {
+		'type': types.DIALOGUE_INCREMENT_SONGBIRD_GREEN_DICT,
+		'game_progress_index': game_progress_index
+	}
+
+func dialogue_increment_songbird_purple_dict(game_progress_index):
+	return {
+		'type': types.DIALOGUE_INCREMENT_SONGBIRD_PURPLE_DICT,
+		'game_progress_index': game_progress_index
+	}
+
+func dialogue_increment_sheep_dict(game_progress_index):
+	return {
+		'type': types.DIALOGUE_INCREMENT_SHEEP_DICT,
 		'game_progress_index': game_progress_index
 	}
 

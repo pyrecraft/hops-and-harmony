@@ -16,6 +16,7 @@ var text_offset_y = 5
 var is_hover = false
 var is_clicked = false
 export var text = 'E'
+export var action_text = ''
 
 # Animation
 var scale_rate = .05
@@ -36,6 +37,9 @@ func _process(delta):
 
 func set_text(t):
 	text = t
+
+func set_action_text(t):
+	action_text = t
 
 func set_colors(regular):
 	box_color = regular
@@ -86,6 +90,10 @@ func _draw():
 #	draw_string(waku_font, Vector2(next_font_position.x * 1.002, next_font_position.y * 1.002), \
 #		text, shadow_color)
 	draw_string(waku_font, next_font_position, text, text_color)
+	
+	var action_text_position = Vector2(font_position.x + 40.0, font_position.y + next_position_offset)
+	
+	draw_string(waku_font, action_text_position, action_text, text_color)
 
 func draw_rounded_rect(rect, color, circle_radius):
 	draw_circle(rect.position, circle_radius, color)

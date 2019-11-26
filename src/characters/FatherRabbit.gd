@@ -69,7 +69,7 @@ func _on_Area2D_body_exited(body):
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
-	if dialogue_queue_L.empty():
+	if dialogue_queue_L.empty(): # About to pop this last message:
 		$DialogueBox.queue_clear_text()
 
 func _on_store_changed(name, state):
@@ -106,7 +106,9 @@ func handle_next_dialogue(queue):
 		return
 	
 	var dialogue_text = next_dialogue_obj['text']
-	$DialogueBox.set_text(dialogue_text)
+	if dialogue_text != $DialogueBox.get_text(): # NOTE: this means you cannot say the same text twice
+		print('Setting next dialogue for FatherRabbit: ' + dialogue_text)
+		$DialogueBox.set_text(dialogue_text)
 
 func _input(event):
 	if Input.is_key_pressed(KEY_E) and can_start_dialogue():
@@ -119,22 +121,22 @@ func get_next_dialogue():
 	match game_progress_L:
 		Globals.GameProgress.GAME_START:
 			var next_dialogue = []
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Harley!"))
-			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Dad!"))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Do you know what today is?"))
-			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What's today?"))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "A ta-hare-iffic day!"))
-			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..."))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "But seriously though"))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Today is the day you are all grown up"))
-			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "One might say"))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You now have a full head of hare!"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Harley!"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Dad!"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Do you know what today is?"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What's today?"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "A ta-hare-iffic day!"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..."))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "But seriously though"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Today is the day you are all grown up"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "One might say"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You now have a full head of hare!"))
 			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..."))
 			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You're old enough to be on your own"))
 			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Go head on up and see what the world holds!"))
-			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', ""))
+#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', ""))
 			return next_dialogue
 
 func can_start_dialogue():

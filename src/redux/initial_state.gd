@@ -14,9 +14,10 @@ static func get_substate(substate):
 		'game':
 			return {
 				'day': 1,
-				'hour': 20,
+				'hour': 10,
 				'state': Globals.GameState.PLAYING,
-				'progress': Globals.GameProgress.TALKED_TO_DAD
+				'progress': Globals.GameProgress.TALKED_TO_DAD,
+				'has_coconut': false
 			}
 		'dialogue':
 			return {
@@ -24,7 +25,10 @@ static func get_substate(substate):
 				'rabbit_position': Vector2(0, 0),
 				'npc_position': Vector2(0, 0),
 				'crab_dict': get_init_dict(),
-				'father_dict': get_init_dict()
+				'father_dict': get_init_dict(),
+				'songbird_green_dict': get_init_dict(),
+				'songbird_purple_dict': get_init_dict(),
+				'sheep_dict': get_init_dict()
 			}
 	return {}
 

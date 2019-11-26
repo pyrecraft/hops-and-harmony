@@ -24,6 +24,10 @@ func game(state, action):
 		var next_state = store.shallow_copy(state)
 		next_state['progress'] = action['progress']
 		return next_state
+	if action['type'] == action_types.GAME_SET_HAS_COCONUT:
+		var next_state = store.shallow_copy(state)
+		next_state['has_coconut'] = action['has_coconut']
+		return next_state
 	return state
 
 func dialogue(state, action):
@@ -63,5 +67,20 @@ func dialogue(state, action):
 		var next_state = store.shallow_copy(state)
 		var game_progress_index = action['game_progress_index']
 		next_state['father_dict'][game_progress_index] += 1
+		return next_state
+	if action['type'] == action_types.DIALOGUE_INCREMENT_SONGBIRD_GREEN_DICT:
+		var next_state = store.shallow_copy(state)
+		var game_progress_index = action['game_progress_index']
+		next_state['songbird_green_dict'][game_progress_index] += 1
+		return next_state
+	if action['type'] == action_types.DIALOGUE_INCREMENT_SONGBIRD_PURPLE_DICT:
+		var next_state = store.shallow_copy(state)
+		var game_progress_index = action['game_progress_index']
+		next_state['songbird_purple_dict'][game_progress_index] += 1
+		return next_state
+	if action['type'] == action_types.DIALOGUE_INCREMENT_SHEEP_DICT:
+		var next_state = store.shallow_copy(state)
+		var game_progress_index = action['game_progress_index']
+		next_state['sheep_dict'][game_progress_index] += 1
 		return next_state
 	return state

@@ -93,10 +93,15 @@ func handle_next_dialogue(queue):
 	
 	var dialogue_text = next_dialogue_obj['text']
 	
-	$DialogueBox.set_text(dialogue_text)
+	if dialogue_text != $DialogueBox.get_text(): # NOTE: this means you cannot say the same text twice
+		print('Setting next dialogue for Crab: ' + dialogue_text)
+		$DialogueBox.set_text(dialogue_text)
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
+	if dialogue_queue_L.empty():
+		$DialogueBox.queue_clear_text()
+		print('Crab finished talking.')
 
 func _input(event):
 	if Input.is_key_pressed(KEY_E) and can_start_dialogue():

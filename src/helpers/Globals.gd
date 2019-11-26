@@ -7,20 +7,20 @@ var day_night
 
 enum GameState {
 	PLAYING,
+	MINIGAME,
 	DIALOGUE
 }
 
 enum GameProgress {
 	GAME_START,
 	TALKED_TO_DAD,
+	TALK_TO_SHEEPA,
+	TALKED_TO_SHEEPA,
 	COCONUT_STARTED, # Gather coconuts
-	COCONUT_COMPLETED,
-	STRING_STARTED, # Gather strings
-	STRING_COMPLETED,
-	LYRE_OBTAINED
+	COCONUT_COMPLETED # Lyre Obtained
 }
 
-const GAME_PROGRESS_TOTAL_STATES = 7
+const GAME_PROGRESS_TOTAL_STATES = 6
 
 func get_color(r, g, b, a):
 	return Color(float(r)/255.0, float(g)/255.0, float(b)/255.0, float(a)/255.0)

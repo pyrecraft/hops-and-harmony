@@ -1,13 +1,16 @@
 extends KinematicBody2D
 
 const initial_state = preload("res://src/redux/initial_state.gd")
+const coconut_minigame = preload("res://src/minigames/CoconutMinigame.tscn")
 const color_eyes = Color('#2a363b')
 const color_pink = Color('#f78dae')
 const color_primary = Color('#dcb6b6')
 const walk_smoke = preload('res://src/effects/WalkSmoke.tscn')
+export var coconut_color = Color('965a3e')
+export var coconut_hole_color = Color('#2a363b')
 
 # Movement
-var gravity = 1000
+var gravity = 950
 var walk_speed = 350
 var jump_speed = -500
 var velocity = Vector2()
@@ -27,6 +30,14 @@ var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
 var game_progress_L = Globals.GameProgress.GAME_START
+var game_has_coconut_L = false
+
+var last_island = Island.MAIN
+
+enum Island {
+	MAIN,
+	MINI
+}
 
 enum RabbitState {
 	IDLE,
@@ -40,10 +51,11 @@ func _ready():
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
 	game_progress_L = initial_state.get_state()['game']['progress']
+	game_has_coconut_L = Globals.get_state_value('game', 'has_coconut')
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
-	if dialogue_queue_L.empty() or dialogue_queue_L.size() == 1: # About to pop this last message
+	if dialogue_queue_L.empty():
 		$DialogueBox.queue_clear_text()
 		print('Rabbit finished talking.')
 		current_rabbit_state = RabbitState.IDLE
@@ -64,9 +76,37 @@ func _on_store_changed(name, state):
 	if store.get_state()['game']['hour'] != null:
 		game_hour_L = store.get_state()['game']['hour']
 	if store.get_state()['game']['state'] != null:
+		var next_game_state = store.get_state()['game']['state']
+		if next_game_state == Globals.GameState.MINIGAME and next_game_state != game_state_L:
+			print('Starting new minigame!')
+			start_coconut_minigame()
 		game_state_L = store.get_state()['game']['state']
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
+	if store.get_state()['game']['has_coconut'] != null:
+		game_has_coconut_L = store.get_state()['game']['has_coconut']
+
+func start_coconut_minigame():
+	var should_skip_minigame = false # Can use DEBUG_MODE here
+	if !should_skip_minigame:
+		var minigame = coconut_minigame.instance()
+		minigame.connect("minigame_won", self, "on_coconut_minigame_won")
+		minigame.connect("minigame_lost", self, "on_coconut_minigame_lost")
+		minigame.position -= get_viewport().size / 1.7
+		$Camera2D.add_child(minigame)
+	else:
+		on_coconut_minigame_won()
+
+func on_coconut_minigame_won():
+	print("WIN!")
+	var special_palm_tree = get_tree().get_root().get_node('/root/Root/MainIsland/MiniIsland/SpecialPalmTree')
+	if special_palm_tree != null:
+		special_palm_tree.spawn_coconut()
+	store.dispatch(actions.game_set_state(Globals.GameState.PLAYING))
+
+func on_coconut_minigame_lost():
+	print("LOST!")
+	store.dispatch(actions.game_set_state(Globals.GameState.PLAYING))
 
 func handle_next_dialogue(queue):
 	if queue.empty():
@@ -77,14 +117,15 @@ func handle_next_dialogue(queue):
 	
 	var next_dialogue_obj = queue.front()
 	var speaker = next_dialogue_obj['speaker']
-	print('Rabbit in TALKING state')
 	current_rabbit_state = RabbitState.TALKING
 	
 	if speaker != name:
 		return
 	
 	var dialogue_text = next_dialogue_obj['text']
-	$DialogueBox.set_text(dialogue_text)
+	if dialogue_text != $DialogueBox.get_text(): # NOTE: this means you cannot say the same text twice
+		print('Setting next dialogue for Rabbit: ' + dialogue_text)
+		$DialogueBox.set_text(dialogue_text)
 
 func _process(delta):
 	handle_states(delta)
@@ -94,12 +135,24 @@ func _physics_process(delta):
 	set_velocities(delta)
 #	clamp_pos_to_screen()
 	check_for_water_death()
+	if position.x > 6500 and last_island == Island.MAIN:
+		last_island = Island.MINI
+	elif position.x < 4000 and last_island == Island.MINI:
+		last_island = Island.MAIN
 
 func check_for_water_death():
-	if position.x < 200 and position.y > 1000: # Left side death
+	if position.x < 200 and position.y > 850: # Left side death
+		store.dispatch(actions.game_set_has_coconut(false))
 		position = Vector2(150, 350)
-	if position.x > 3000 and position.y > 1000:
-		position = Vector2(3850, 350)
+	elif position.x > 8000 and position.y > 850: # Right side death
+		store.dispatch(actions.game_set_has_coconut(false))
+		position = Vector2(7950, 350)
+	if position.x > 3000 and position.y > 850:
+		store.dispatch(actions.game_set_has_coconut(false))		
+		if last_island == Island.MINI:
+			position = Vector2(6550, 350)
+		else:
+			position = Vector2(3850, 350)
 
 func handle_states(delta):
 	current_scale += scale_rate * delta * scale_polarity
@@ -139,7 +192,7 @@ func handle_states(delta):
 func set_velocities(delta):
 	velocity.x = 0
 	velocity.y += gravity * delta
-	if !current_rabbit_state == RabbitState.TALKING:
+	if is_walking_allowed():
 		if is_walking_right():
 			velocity.x += walk_speed
 		if is_walking_left():
@@ -148,6 +201,10 @@ func set_velocities(delta):
 			velocity.y = jump_speed
 
 	velocity = move_and_slide(velocity, Vector2(0, -1))
+
+func is_walking_allowed():
+	return current_rabbit_state != RabbitState.TALKING and \
+		game_state_L != Globals.GameState.MINIGAME
 
 func is_walking_left():
 	return Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A)
@@ -170,6 +227,26 @@ func clamp_pos_to_screen():
 func _draw():
 	draw_body()
 	draw_head()
+	if game_has_coconut_L:
+		draw_coconut()
+
+var pos_offset_x = 0
+func draw_coconut():
+	var pos = Vector2(circle_center.x, circle_center.y)
+	var rad = 20.0
+	var hole_offset = rad / 3.0
+	var hole_size = rad / 6.0
+	var offset_y = 15.0 * current_scale
+	if is_walking_right():
+		pos_offset_x = 25
+	if is_walking_left():
+		pos_offset_x = -25
+	pos.x += pos_offset_x
+	pos.y -= offset_y
+	draw_circle(pos, rad, coconut_color)
+	draw_circle(Vector2(pos.x - hole_offset, pos.y), hole_size, coconut_hole_color)
+	draw_circle(Vector2(pos.x, pos.y + hole_offset), hole_size, coconut_hole_color)
+	draw_circle(Vector2(pos.x + hole_offset, pos.y), hole_size, coconut_hole_color)
 
 func draw_body():
 	draw_circle_arc_custom(circle_center, 40, 0, 180, color_primary)
@@ -210,7 +287,6 @@ func draw_ears(head_vec, head_offset_x):
 	draw_circle_arc_custom(left_ear_pos, inner_ear_radius, 180, 360, color_pink)
 	draw_circle_arc_custom(right_ear_pos, inner_ear_radius, 0, 180, color_pink)
 	draw_circle_arc_custom(right_ear_pos, inner_ear_radius, 180, 360, color_pink)
-	
 
 func draw_ear_head_connection(left_ear, right_ear, radius, height, offset_x):
 	radius *= (1.0 - max(current_scale, 1)) + 1.0

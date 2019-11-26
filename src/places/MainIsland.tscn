@@ -10,13 +10,13 @@
 [ext_resource path="res://src/things/PalmTree.tscn" type="PackedScene" id=8]
 [ext_resource path="res://src/things/Supershape.tscn" type="PackedScene" id=9]
 [ext_resource path="res://src/characters/Crab.tscn" type="PackedScene" id=10]
-[ext_resource path="res://src/characters/Rabbit.tscn" type="PackedScene" id=11]
-[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=12]
-[ext_resource path="res://src/characters/Songbird.tscn" type="PackedScene" id=13]
+[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=11]
+[ext_resource path="res://src/characters/Songbird.tscn" type="PackedScene" id=12]
+[ext_resource path="res://src/characters/Sheep.tscn" type="PackedScene" id=13]
 [ext_resource path="res://src/lighting/DayNightCycle.tscn" type="PackedScene" id=14]
-[ext_resource path="res://src/places/MiniIsland.tscn" type="PackedScene" id=15]
-[ext_resource path="res://src/things/IslandWaterSprite.tscn" type="PackedScene" id=16]
-[ext_resource path="res://audio/toto-harley-nighttime.ogg" type="AudioStream" id=17]
+[ext_resource path="res://src/things/IslandWaterSprite.tscn" type="PackedScene" id=15]
+[ext_resource path="res://audio/toto-harley-nighttime.ogg" type="AudioStream" id=16]
+[ext_resource path="res://src/places/MiniIsland.tscn" type="PackedScene" id=17]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 1908.32, 24.9725 )
@@ -78,15 +78,14 @@ radius = 85.0
 
 [node name="MainIsland" type="Node2D"]
 script = ExtResource( 1 )
+spawn_main_island = false
 
 [node name="Burrow" parent="." instance=ExtResource( 2 )]
 position = Vector2( 876.155, 469.369 )
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
-editor/display_folded = true
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-editor/display_folded = true
 motion_scale = Vector2( 0.9, 1 )
 
 [node name="Valley" parent="ParallaxBackground/ParallaxLayer" instance=ExtResource( 3 )]
@@ -130,7 +129,6 @@ valley_nb_points = 30
 y_offset = 200
 
 [node name="Floor" type="StaticBody2D" parent="."]
-editor/display_folded = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
 position = Vector2( 2032.97, 475.663 )
@@ -141,7 +139,6 @@ wait_time = 20.0
 autostart = true
 
 [node name="BackgroundCanvas" type="CanvasLayer" parent="."]
-editor/display_folded = true
 layer = -2
 
 [node name="Background" parent="BackgroundCanvas" instance=ExtResource( 4 )]
@@ -255,7 +252,6 @@ position = Vector2( 5990.69, 559.617 )
 z_index = -1
 
 [node name="Trees" type="Node" parent="."]
-editor/display_folded = true
 
 [node name="PalmTree" parent="Trees" instance=ExtResource( 8 )]
 position = Vector2( 402.817, 288.061 )
@@ -334,31 +330,30 @@ n3 = 2.6
 [node name="Crab" parent="Characters" instance=ExtResource( 10 )]
 position = Vector2( 213.277, 438.402 )
 
-[node name="Rabbit" parent="Characters" instance=ExtResource( 11 )]
-position = Vector2( 876.222, 403.496 )
-
-[node name="Turtle" parent="Characters" instance=ExtResource( 12 )]
+[node name="Turtle" parent="Characters" instance=ExtResource( 11 )]
 position = Vector2( 1440.48, 172.978 )
 
-[node name="SongbirdGreen" parent="Characters" instance=ExtResource( 13 )]
+[node name="SongbirdGreen" parent="Characters" instance=ExtResource( 12 )]
 position = Vector2( 1531.22, 245.442 )
 
-[node name="Songbird" parent="Characters" instance=ExtResource( 13 )]
+[node name="SongbirdPurple" parent="Characters" instance=ExtResource( 12 )]
 position = Vector2( 2442.1, 237.06 )
 color_primary = Color( 0.898039, 0.690196, 0.917647, 1 )
+is_purple_songbird = true
+
+[node name="Sheep" parent="Characters" instance=ExtResource( 13 )]
+position = Vector2( 6765.67, 404.589 )
 
 [node name="DayNightCycle" parent="." instance=ExtResource( 14 )]
-visible = false
 
-[node name="MiniIsland" parent="." instance=ExtResource( 15 )]
-position = Vector2( 7222.04, 551.305 )
-
-[node name="IslandWaterSprite" parent="." instance=ExtResource( 16 )]
+[node name="IslandWaterSprite" parent="." instance=ExtResource( 15 )]
 position = Vector2( 0, 334.633 )
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 17 )
+stream = ExtResource( 16 )
 autoplay = true
+
+[node name="MiniIsland" parent="." instance=ExtResource( 17 )]
 [connection signal="timeout" from="CloudTimer" to="." method="_on_CloudTimer_timeout"]
 
 [editable path="Rocks/Rock"]

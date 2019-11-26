@@ -1,16 +1,41 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://src/places/MiniIsland.gd" type="Script" id=1]
+[ext_resource path="res://sprites/moai-facing-right.png" type="Texture" id=2]
+[ext_resource path="res://src/things/SpecialPalmTree.tscn" type="PackedScene" id=3]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 100.0
 height = 1500.0
 
 [node name="MiniIsland" type="Node2D"]
+position = Vector2( 7252.62, 548.347 )
+z_index = -1
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_group_": true
+}
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 rotation = 1.5708
 shape = SubResource( 1 )
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+position = Vector2( 7254.22, 549.892 )
+motion_scale = Vector2( 0.9, 1 )
+
+[node name="moai-facing-left" type="Sprite" parent="ParallaxBackground/ParallaxLayer"]
+position = Vector2( -1316.01, -201.084 )
+texture = ExtResource( 2 )
+flip_h = true
+
+[node name="moai-facing-right" type="Sprite" parent="ParallaxBackground/ParallaxLayer"]
+position = Vector2( -327.398, -201.084 )
+texture = ExtResource( 2 )
+
+[node name="SpecialPalmTree" parent="." instance=ExtResource( 3 )]
+position = Vector2( -51.7964, -420.846 )

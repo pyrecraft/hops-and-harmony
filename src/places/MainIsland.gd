@@ -1,6 +1,7 @@
 extends Node2D
 
 const cloud = preload("res://src/things/Cloud.tscn")
+const rabbit = preload("res://src/characters/Rabbit.tscn")
 
 const land_color = Color('#f9d5bb')
 const hill_color = Color('#5f6769')
@@ -9,9 +10,21 @@ var land_start_pos = Vector2(150, 450)
 var land_end_pos = Vector2(3900, 450)
 var cloud_spawn_location = Vector2(-1000, 50)
 
+export var spawn_main_island = true
+var rabbit_main_island_pos = Vector2(875, 400)
+var rabbit_mini_island_pos = Vector2(6600, 400)
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass
+	set_rabbit()
+
+func set_rabbit():
+	var player_rabbit = rabbit.instance()
+	if spawn_main_island:
+		player_rabbit.set_position(rabbit_main_island_pos)
+	else:
+		player_rabbit.set_position(rabbit_mini_island_pos)
+	add_child(player_rabbit)
 
 func _draw():
 #	draw_background()

@@ -32,6 +32,9 @@ func _input(event):
 func is_empty():
 	return full_text == '' or full_text == null or full_text.length() == 0
 
+func get_text():
+	return full_text
+
 func clear_text():
 	full_text = ''
 	update_dialogue_box('', font_height, font_width)

@@ -13,6 +13,7 @@ script = ExtResource( 1 )
 z_index = 1
 box_color = Color( 0.639216, 0.290196, 0.156863, 1 )
 text = "S"
+action_text = "Home"
 
 [node name="Area2D" type="Area2D" parent="."]
 

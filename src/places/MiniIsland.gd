@@ -6,6 +6,7 @@ var current_pos = Vector2(0, 0)
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	current_pos = position
+	$ParallaxBackground/ParallaxLayer.position = position
 
 func _draw():
 	var offset = $StaticBody2D/CollisionShape2D.shape.height / 2.0

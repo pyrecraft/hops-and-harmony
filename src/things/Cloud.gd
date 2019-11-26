@@ -8,10 +8,17 @@ var base_trig = 0.4 + (((randi() % 6) + 1) / 10.0)
 var base_nb_points = 6 + randi() % 5
 var cloud_movement_rate = 15.0 + randi() % 10
 
+var base_circle_radiuses = []
+var base_circle_trigs = []
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	base_circle_points = generate_random_base_circle()
 #	color_primary.a = (150 + (randi() % 100)) / 255.0
+	for i in range(0, base_circle_points.size() - 1):
+		randomize()
+		base_circle_radiuses.push_back(get_random_radius())
+		base_circle_trigs.push_back(get_random_trig_value())
 
 func _process(delta):
 	position.x += cloud_movement_rate * delta
@@ -34,8 +41,7 @@ func get_random_trig_value():
 func _draw():
 	draw_circle_custom(position, base_radius, base_trig)
 	for i in range(0, base_circle_points.size() - 1):
-		randomize()
-		draw_circle_custom(base_circle_points[i], get_random_radius(), get_random_trig_value())
+		draw_circle_custom(base_circle_points[i], base_circle_radiuses[i], base_circle_trigs[i])
 
 func generate_random_base_circle():
 	return get_arc_points(position, base_radius, 0, 360, base_trig, base_nb_points)
