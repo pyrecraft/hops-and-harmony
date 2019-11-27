@@ -37,7 +37,7 @@ radius = 96.8728
 radius = 157.052
 
 [sub_resource type="CircleShape2D" id=7]
-radius = 100.0
+radius = 61.9682
 
 [sub_resource type="GDScript" id=8]
 script/source = "extends StaticBody2D
@@ -71,12 +71,13 @@ func _draw():
 	draw_circle(Vector2(0, 0), $CollisionShape2D.shape.radius, color)"
 
 [sub_resource type="CircleShape2D" id=9]
-radius = 110.0
+radius = 62.8619
 
 [sub_resource type="CircleShape2D" id=10]
-radius = 85.0
+radius = 56.5739
 
 [node name="MainIsland" type="Node2D"]
+rotation = 0.000323031
 script = ExtResource( 1 )
 spawn_main_island = false
 
@@ -176,7 +177,6 @@ position = Vector2( 1558.73, 37.2007 )
 position = Vector2( 2090.38, 18.6003 )
 
 [node name="Rocks" type="Node" parent="."]
-editor/display_folded = true
 
 [node name="Hill1" type="StaticBody2D" parent="Rocks"]
 editor/display_folded = true
@@ -218,6 +218,7 @@ position = Vector2( 4314, 590.565 )
 z_index = -1
 
 [node name="CollisionShape2D" parent="Rocks/Rock" index="0"]
+position = Vector2( 0, 9.8988 )
 shape = SubResource( 7 )
 
 [node name="Rock2" parent="Rocks" instance=ExtResource( 6 )]
@@ -233,7 +234,7 @@ position_multiplier = 40.0
 shape = SubResource( 9 )
 
 [node name="Rock3" parent="Rocks" instance=ExtResource( 6 )]
-position = Vector2( 5557.9, 590.565 )
+position = Vector2( 5557.9, 611.777 )
 z_index = -1
 color = Color( 0.2, 0.243137, 0.254902, 1 )
 scale_rate = 0.3
@@ -246,10 +247,15 @@ shape = SubResource( 10 )
 [node name="Log" parent="Rocks" instance=ExtResource( 7 )]
 position = Vector2( 4746.79, 559.617 )
 z_index = -1
+position_multiplier = 100.0
 
 [node name="Log2" parent="Rocks" instance=ExtResource( 7 )]
 position = Vector2( 5990.69, 559.617 )
 z_index = -1
+position_multiplier = 120.0
+
+[node name="CollisionShape2D" parent="Rocks/Log2" index="0"]
+position = Vector2( -1.41406, -1.41406 )
 
 [node name="Trees" type="Node" parent="."]
 
@@ -257,7 +263,7 @@ z_index = -1
 position = Vector2( 402.817, 288.061 )
 
 [node name="PalmTree2" parent="Trees" instance=ExtResource( 8 )]
-position = Vector2( 1548.03, 271.667 )
+position = Vector2( 2216.92, 271.667 )
 tree_height = 220
 is_tree_swaying = false
 
@@ -334,7 +340,7 @@ position = Vector2( 213.277, 438.402 )
 position = Vector2( 1440.48, 172.978 )
 
 [node name="SongbirdGreen" parent="Characters" instance=ExtResource( 12 )]
-position = Vector2( 1531.22, 245.442 )
+position = Vector2( 2200.11, 245.442 )
 
 [node name="SongbirdPurple" parent="Characters" instance=ExtResource( 12 )]
 position = Vector2( 2442.1, 237.06 )
@@ -361,3 +367,7 @@ autoplay = true
 [editable path="Rocks/Rock2"]
 
 [editable path="Rocks/Rock3"]
+
+[editable path="Rocks/Log"]
+
+[editable path="Rocks/Log2"]

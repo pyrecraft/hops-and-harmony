@@ -4,7 +4,7 @@ onready var actions = get_node('/root/actions')
 onready var reducers = get_node('/root/reducers')
 onready var store = get_node('/root/store')
 
-var start_on_home = false
+export var start_on_home = false
 
 func _ready():
 	store.create([

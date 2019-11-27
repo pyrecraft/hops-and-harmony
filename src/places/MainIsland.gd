@@ -14,9 +14,31 @@ export var spawn_main_island = true
 var rabbit_main_island_pos = Vector2(875, 400)
 var rabbit_mini_island_pos = Vector2(6600, 400)
 
+# State Tree
+var game_progress_L = Globals.GameProgress.GAME_START
+var has_set_game_progress = false
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	store.subscribe(self, "_on_store_changed")
 	set_rabbit()
+	game_progress_L = Globals.get_state_value('game', 'progress')
+	if game_progress_L == Globals.GameProgress.TALKED_TO_DAD or game_progress_L == Globals.GameProgress.GAME_START:
+		store.dispatch(actions.game_set_progress(Globals.GameProgress.WENT_OUTSIDE))
+		print('Went outside!')
+
+func _process(delta):
+	if !has_set_game_progress:
+		if game_progress_L == Globals.GameProgress.TALKED_TO_DAD or \
+			game_progress_L == Globals.GameProgress.GAME_START:
+			store.dispatch(actions.game_set_progress(Globals.GameProgress.WENT_OUTSIDE))
+		has_set_game_progress = true
+
+func _on_store_changed(name, state):
+	if store.get_state() == null:
+		return
+	if store.get_state()['game']['progress'] != null:
+		game_progress_L = store.get_state()['game']['progress']
 
 func set_rabbit():
 	var player_rabbit = rabbit.instance()

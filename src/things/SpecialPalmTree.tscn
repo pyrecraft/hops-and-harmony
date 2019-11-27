@@ -3,7 +3,7 @@
 [ext_resource path="res://src/things/SpecialPalmTree.gd" type="Script" id=1]
 [ext_resource path="res://src/things/HoverTip.tscn" type="PackedScene" id=2]
 
-[sub_resource type="CircleShape2D" id=2]
+[sub_resource type="CircleShape2D" id=1]
 radius = 119.25
 
 [node name="SpecialPalmTree" type="Node2D"]
@@ -19,4 +19,4 @@ action_text = "Get Coconut"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2( 0.200851, 226.541 )
-shape = SubResource( 2 )
+shape = SubResource( 1 )

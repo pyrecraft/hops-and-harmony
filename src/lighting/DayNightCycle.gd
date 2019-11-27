@@ -66,19 +66,6 @@ func _ready():
 func _on_store_changed(name, state):
 	if store.get_state() == null:
 		return
-#	if store.get_state()['dialogue']['queue'] != null:
-#		dialogue_queue_L = store.get_state()['dialogue']['queue']
-#		handle_next_dialogue(dialogue_queue_L)
-#	if store.get_state()['dialogue']['npc_position'] != null:
-#		npc_position_L = store.get_state()['dialogue']['npc_position']
-#	if store.get_state()['game']['day'] != null:
-#		game_day_L = store.get_state()['game']['day']
-#	if store.get_state()['game']['hour'] != null:
-#		game_hour_L = store.get_state()['game']['hour']
-#	if store.get_state()['game']['state'] != null:
-#		game_state_L = store.get_state()['game']['state']
-#	if store.get_state()['game']['progress'] != null:
-#		game_progress_L = store.get_state()['game']['progress']
 
 func _physics_process(delta):
 	day_cycle()

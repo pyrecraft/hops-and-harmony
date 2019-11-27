@@ -1,9 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://src/characters/Songbird.gd" type="Script" id=1]
 [ext_resource path="res://src/things/Supershape.tscn" type="PackedScene" id=2]
 [ext_resource path="res://src/things/DialogueBox.tscn" type="PackedScene" id=3]
-[ext_resource path="res://src/things/DialogueBox.gd" type="Script" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 83.1251, 71.2265 )
@@ -37,15 +36,11 @@ n3 = 0.5
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2( -151.703, 102.393 )
+position = Vector2( -121.729, 102.393 )
 shape = SubResource( 1 )
 
-[node name="DialogueBox" type="Node2D" parent="." instance=ExtResource( 3 )]
+[node name="DialogueBox" parent="." instance=ExtResource( 3 )]
 position = Vector2( 0, -66.0966 )
-script = ExtResource( 4 )
-__meta__ = {
-"_edit_group_": true
-}
 
 [node name="ShowStartTextTimer" type="Timer" parent="."]
 one_shot = true

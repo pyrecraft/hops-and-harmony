@@ -14,13 +14,15 @@ enum GameState {
 enum GameProgress {
 	GAME_START,
 	TALKED_TO_DAD,
+	WENT_OUTSIDE,
 	TALK_TO_SHEEPA,
 	TALKED_TO_SHEEPA,
 	COCONUT_STARTED, # Gather coconuts
-	COCONUT_COMPLETED # Lyre Obtained
+	COCONUT_COMPLETED, # Lyre Obtained
+	LYRE_OBTAINED
 }
 
-const GAME_PROGRESS_TOTAL_STATES = 6
+const GAME_PROGRESS_TOTAL_STATES = 8
 
 func get_color(r, g, b, a):
 	return Color(float(r)/255.0, float(g)/255.0, float(b)/255.0, float(a)/255.0)

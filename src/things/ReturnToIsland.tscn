@@ -11,7 +11,7 @@ script = ExtResource( 1 )
 
 [node name="HoverTalkTip" parent="." instance=ExtResource( 2 )]
 z_index = 1
-box_color = Color( 0.0627451, 0.537255, 1, 1 )
+action_text = "Island"
 
 [node name="Area2D" type="Area2D" parent="."]
 

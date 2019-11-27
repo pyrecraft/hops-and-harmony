@@ -4,7 +4,7 @@ const hover_tip = preload("res://src/things/HoverTip.tscn")
 
 export var color_primary = Color.white
 export var color_eyes = Color('#2a363b')
-export var is_purple_songbird = false
+export var is_purple_songbird = false # Facing Right
 
 var start_pos = Vector2(0, 0)
 var current_hover_tip
@@ -19,6 +19,7 @@ var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
 var game_progress_L = Globals.GameProgress.GAME_START
+var has_coconut_L = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -32,11 +33,19 @@ func _ready():
 	game_hour_L = Globals.get_state_value('game', 'hour')
 	game_state_L = Globals.get_state_value('game', 'state')
 	game_progress_L = Globals.get_state_value('game', 'progress')
+	has_coconut_L = Globals.get_state_value('game', 'has_coconut')
 	
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
-	$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
-	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
+	if is_purple_songbird:
+		$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
+		$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
+		$DialogueBox.position.x += 60
+	else:
+		$Body.rotate(90)
+		$Head.rotate(PI * (3.5/3.0))
+		$Head.position.x += 15
+		$DialogueBox.position.x -= 60
 
 func _on_store_changed(name, state):
 	if store.get_state() == null:
@@ -59,6 +68,8 @@ func _on_store_changed(name, state):
 		songbird_green_dict_L = store.get_state()['dialogue']['songbird_green_dict']
 	if store.get_state()['dialogue']['songbird_purple_dict'] != null:
 		songbird_purple_dict_L = store.get_state()['dialogue']['songbird_purple_dict']
+	if store.get_state()['game']['has_coconut'] != null:
+		has_coconut_L = store.get_state()['game']['has_coconut']
 
 func handle_hover_tip(queue):
 	if !queue.empty() and current_hover_tip != null:
@@ -73,10 +84,7 @@ func handle_next_dialogue(queue):
 	var next_dialogue_obj = queue.front()
 	var speaker = next_dialogue_obj['speaker']
 	
-	print('Speaker : ' + speaker)
-	print('Name : ' + name)
-	
-	if speaker != name:
+	if speaker != name and speaker != 'Songbirds':
 		return
 	
 	var dialogue_text = next_dialogue_obj['text']
@@ -99,56 +107,135 @@ func _input(event):
 		store.dispatch(actions.dialogue_set_queue(get_next_dialogue()))
 
 func get_next_dialogue():
-	return get_next_dialogue_purple() if is_purple_songbird else get_next_dialogue_green()
-
-func get_next_dialogue_purple():
+	var original_game_progress = game_progress_L
+	var next_dialogue = []
+		
 	match game_progress_L:
-			Globals.GameProgress.TALKED_TO_DAD:
-				var next_dialogue = []
+			Globals.GameProgress.WENT_OUTSIDE:
+				match songbird_purple_dict_L[game_progress_L]:
+					_:
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Hola!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Hola!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "I haven't seen you before"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'm new here"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny fat!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Hey don't be rude to our new friend"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "She's a little chunky"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I need help"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'm not sure what I should be doing"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny lost!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Hmmm.."))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Well if you need guidance"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "I suggest you find the Sheepa"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "He'll help you figure everything out"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where is the Sheepa?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny can't think for self!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "He's right"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Finding the Sheepa is part of the journey"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Uhmmm Ok"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Thanks I guess"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Ciao!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Ciao!"))
+						store.dispatch(actions.game_set_progress(Globals.GameProgress.TALK_TO_SHEEPA))
+			Globals.GameProgress.TALK_TO_SHEEPA:
 				match songbird_purple_dict_L[game_progress_L]:
 					0:
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Hi"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Today's my first day"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', ".."))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Try not to get eaten!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Bonjour!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Bonjour!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How many languages do you both know?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Yeoull-Hana!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Just 1 language"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "We hear stuff from our travels"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Sometimes it's just nonsense"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Like what?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "git push origin master"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Like that"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where is the Sheepa?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny dumb!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "We can't share that info"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "It's for you to figure out"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Alright.. "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Adios!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Adios!"))
 					_:
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Hi"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Today's my first day"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', ".."))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Try not to get eaten!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-					
-				store.dispatch(actions.dialogue_increment_crab_dict(game_progress_L))
-				return next_dialogue
-
-func get_next_dialogue_green():
-	match game_progress_L:
-		Globals.GameProgress.TALKED_TO_DAD:
-			var next_dialogue = []
-			match songbird_green_dict_L[game_progress_L]:
-				0:
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Why hello there"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "I haven't seen you before"))
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "This is actually my first day!"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Cool!"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "You should make yourself known to the Sheepa"))
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Sheepa?"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Head east and you will find him"))
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Ok "))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Just watch out for slippery rocks"))
-				_:
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi!"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Hello again"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Have you found the sherpa yet?"))
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Actually no, not yet"))
-					next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Head east and you will find him"))
-				
-			store.dispatch(actions.dialogue_increment_crab_dict(game_progress_L))
-			return next_dialogue
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Aloha!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Aloha!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where is the Sheepa?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny sad!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "You need to figure that out for yourself!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Oh.. "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Sayonara!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Sayonara!"))
+			Globals.GameProgress.TALKED_TO_SHEEPA:
+				match songbird_purple_dict_L[game_progress_L]:
+					0:
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "MUAAARK!! "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "MUAAARK!! "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Woah "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "That was actually kind of scary"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Idea mine"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "What's up?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I found the Sheepa!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Baaaaaaa"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "What was he like?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Kind of strange"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "And wonderful"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Do you know what you have to do?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I think the thing I now need"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Was there all along"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Kidneys!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Kidneys!"))
+					_:
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Papers, Please!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Papers, Please!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What papers?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Detain!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Do you need more guidance?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I think I know what to do"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Glory!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Glory!"))
+			Globals.GameProgress.COCONUT_STARTED:
+				match songbird_purple_dict_L[game_progress_L]:
+					_:
+						if !has_coconut_L:
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Konnichiwa! "))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Konnichiwa! "))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Do those trees have coconuts?"))
+							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Only deez nuts!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Coconuts are only found on tall trees"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll keep looking"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Coco!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Coco!"))
+						else:
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Nut! "))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Nut! "))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I have a special delivery!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny has big nuts!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Don't fall into water!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll try"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "See ya!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "See ya!"))
+			Globals.GameProgress.COCONUT_COMPLETED:
+				match songbird_purple_dict_L[game_progress_L]:
+					_:
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "La La La! "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "La La La! "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you songbirds?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Big birds!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "We occasionally sing"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Do you sing?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I might play an instrument once it's ready!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Na Na Na!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Na Na Na!"))
+			Globals.GameProgress.LYRE_OBTAINED:
+				match songbird_purple_dict_L[game_progress_L]:
+					_:
+						pass
+	store.dispatch(actions.dialogue_increment_songbird_purple_dict(original_game_progress))
+	return next_dialogue
 
 func create_dialogue_object(speaker, text):
 	return {
@@ -166,11 +253,16 @@ func _draw():
 	draw_head()
 
 func draw_head():
-	var head_pos = Vector2(start_pos.x, start_pos.y - 32)
+	var x_offset = 0
+	var eye_offset_x = 0
+	if !is_purple_songbird:
+		x_offset = 15
+		eye_offset_x = 3
+	var head_pos = Vector2(start_pos.x + x_offset, start_pos.y - 32)
 	var head_radius = 18
 	draw_circle(head_pos, head_radius, color_primary)
 	
-	var eyes_offset = Vector2(-5, -4)
+	var eyes_offset = Vector2(-5 + eye_offset_x, -4)
 	var eye_radius = 3
 	var eye_pos = Vector2(head_pos.x + (eyes_offset.x * 1.0), head_pos.y + eyes_offset.y)
 	draw_circle_custom(eye_pos, eye_radius, 1.0, color_eyes)
@@ -196,8 +288,9 @@ func _on_Area2D_body_entered(body):
 #		print('Creating hover tip!')
 		current_hover_tip = hover_tip.instance()
 		add_child(current_hover_tip)
+		current_hover_tip.set_box_position(Vector2(-140, -100))
 		is_rabbit_in_speak_zone = true
-		actions.dialogue_set_rabbit_position(body.position)
+		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
 
 func _on_Area2D_body_exited(body):
 	if body.name == 'Rabbit' and current_hover_tip != null:

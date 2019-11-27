@@ -25,12 +25,14 @@ var is_rabbit_in_speak_zone = false
 
 # State Tree
 var dialogue_queue_L = []
+var father_dict_L = {}
 var rabbit_position_L = Vector2(0, 0)
 
 var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
 var game_progress_L = Globals.GameProgress.GAME_START
+var has_coconut_L = false
 
 enum RabbitState {
 	IDLE,
@@ -46,6 +48,8 @@ func _ready():
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
 	game_progress_L = initial_state.get_state()['game']['progress']
+	father_dict_L = Globals.get_state_value('dialogue', 'father_dict')
+	has_coconut_L = Globals.get_state_value('game', 'has_coconut')
 
 func _on_ShowStartTextTimer_timeout():
 	current_hover_tip.show()
@@ -58,7 +62,7 @@ func _on_Area2D_body_entered(body):
 		current_hover_tip.z_index = 1
 		current_hover_tip.set_box_position(Vector2(-13, -170))
 		is_rabbit_in_speak_zone = true
-		actions.dialogue_set_rabbit_position(body.position)
+		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
 
 func _on_Area2D_body_exited(body):
 	if body.name == 'Rabbit' and current_hover_tip != null:
@@ -89,6 +93,11 @@ func _on_store_changed(name, state):
 		game_state_L = store.get_state()['game']['state']
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
+		print('Game progress now: ' + str(game_progress_L))
+	if store.get_state()['dialogue']['father_dict'] != null:
+		father_dict_L = store.get_state()['dialogue']['father_dict']
+	if store.get_state()['game']['has_coconut'] != null:
+		has_coconut_L = store.get_state()['game']['has_coconut']
 
 func handle_hover_tip(queue):
 	if !queue.empty() and current_hover_tip != null:
@@ -97,6 +106,7 @@ func handle_hover_tip(queue):
 
 func handle_next_dialogue(queue):
 	if queue.empty():
+		$DialogueBox.clear_text()
 		return
 	
 	var next_dialogue_obj = queue.front()
@@ -107,37 +117,183 @@ func handle_next_dialogue(queue):
 	
 	var dialogue_text = next_dialogue_obj['text']
 	if dialogue_text != $DialogueBox.get_text(): # NOTE: this means you cannot say the same text twice
-		print('Setting next dialogue for FatherRabbit: ' + dialogue_text)
+#		print('Setting next dialogue for FatherRabbit: ' + dialogue_text)
 		$DialogueBox.set_text(dialogue_text)
 
 func _input(event):
 	if Input.is_key_pressed(KEY_E) and can_start_dialogue():
 		print('Attempted to speak with Rabbit!')
+		if game_progress_L == Globals.GameProgress.COCONUT_STARTED and has_coconut_L: # Receive coconut
+			store.dispatch(actions.game_set_progress(Globals.GameProgress.COCONUT_COMPLETED))
+			store.dispatch(actions.game_set_has_coconut(false))
 		store.dispatch(actions.dialogue_set_npc_position(position))
 		store.dispatch(actions.dialogue_set_queue(get_next_dialogue()))
-		store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_DAD))
+#		store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_DAD))
 
 func get_next_dialogue():
+	var next_dialogue = []
+	var original_game_progress = game_progress_L
 	match game_progress_L:
 		Globals.GameProgress.GAME_START:
-			var next_dialogue = []
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Harley!"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Dad!"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Do you know what today is?"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What's today?"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "A ta-hare-iffic day!"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..."))
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "But seriously though"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Today is the day you are all grown up"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "One might say"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You now have a full head of hare!"))
-			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..."))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You're old enough to be on your own"))
-			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Go head on up and see what the world holds!"))
-#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
-#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', ""))
-			return next_dialogue
+			match father_dict_L[game_progress_L]:
+				0:
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Harley!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Dad!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Do you know what today is?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What's today?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "A ta-hare-iffic day!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "But seriously though"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Today is the day you are all grown up"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "One might say"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You now have a full head of hare!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You're old enough to be on your own"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Go head on up and see what the world holds!"))
+					store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_DAD))
+		Globals.GameProgress.TALKED_TO_DAD:
+			match father_dict_L[game_progress_L]:
+				0:
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Go on now"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You're the hare-o this world needs!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Just exit out over to the left"))
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Don't be shy"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You're the hare-o this world needs!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Just exit out over to the left"))
+		Globals.GameProgress.WENT_OUTSIDE:
+			match father_dict_L[game_progress_L]:
+				0:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey hun"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What should I do?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Well"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Explore of course!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where should I go?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Anywhere!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Don't feel like your bound to just this island"))
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey hun"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'm not sure what to do"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "There's more to this island than meets the eye!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Don't be afraid to venture out"))
+		Globals.GameProgress.TALK_TO_SHEEPA:
+			match father_dict_L[game_progress_L]:
+				0:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey hun"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard there's a Sheepa somewhere"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "A cheetah??"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "No Dad, a 'Sheepa'"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh "))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "'Wool' in that case, you should be fine"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+				1:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey hun"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where do you think the Sheepa lives?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "I don't know I haven't been outside in months"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What do you eat?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "I've stored enough fat to last the rest of my life"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "That explains a lot"))
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey hun"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where do you think the Sheepa lives?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "In a mediterranean oven for 25 minutes"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "After it rises, let it cool"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I said Sheepa"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Not 'Pita'"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh "))
+		Globals.GameProgress.TALKED_TO_SHEEPA:
+			match father_dict_L[game_progress_L]:
+				0:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Guess what!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "What?!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I met the Sheepa!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Wow!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "What's a 'Shika'?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "No Dad, the 'Sheepa'!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "He's this wonderful, strange sheep"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "And he even told me to talk to you!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Me?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Apparently you know how to make instruments"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh yeah I do know how to do that"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "If you get me a coconut I can make you a Lyre"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How did you not mention this before?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Mention what?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Nevermind"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where can I find coconuts?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "It's been awhile but"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "They only grow on the tallest trees"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll see what I can find"))
+					
+					store.dispatch(actions.game_set_progress(Globals.GameProgress.COCONUT_STARTED))
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey hun"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Did you get me a coconut yet?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Not yet"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Still searching for it"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Make sure to bring it back here"))
+		Globals.GameProgress.COCONUT_STARTED:
+			match father_dict_L[game_progress_L]:
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hi Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey hun"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Did you get me a coconut yet?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Not yet"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Still searching for it!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Make sure to bring it back here"))
+		Globals.GameProgress.COCONUT_COMPLETED:
+			match father_dict_L[game_progress_L]:
+				0:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Here you go Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh wow!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "This will make an amazing smoothie"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Dad no!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "It's for the lyre"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Remember?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh right!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Give me one second to make it for you"))
+				1:
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Your lyre is ready!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "That fast?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Yup "))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How many other hidden talents do you have?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "I can make my belly expand very wide"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "That isn't a very 'hidden' talent"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Anyways, just use numbers 1-8 to play the lyre"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What does use 1-8 mean?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Your puppet master will know"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I worry about you sometimes, Dad"))
+					store.dispatch(actions.game_set_progress(Globals.GameProgress.LYRE_OBTAINED))
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How do I play the lyre again?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Use numbers 1-8 on your keyboard"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Whatever that means"))
+		Globals.GameProgress.LYRE_OBTAINED:
+			match father_dict_L[game_progress_L]:
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How do I play the lyre again?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Use numbers 1-8 on your keyboard"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Whatever that means"))
+	
+	store.dispatch(actions.dialogue_increment_father_dict(original_game_progress))
+	return next_dialogue
 
 func can_start_dialogue():
 	return is_rabbit_in_speak_zone and dialogue_queue_L.empty() \

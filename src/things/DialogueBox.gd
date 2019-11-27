@@ -4,8 +4,8 @@ signal text_complete
 
 export var outline_color = Color.black
 
-export var font_height = 26
-export var font_width = 16
+export var font_height = 27
+export var font_width = 17
 export var full_text = ''
 
 var current_text = ''

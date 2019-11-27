@@ -40,7 +40,6 @@ func _ready():
 	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
 
 func spawn_coconut():
-	print('Spawning coconut!')
 	var next_coconut = coconut.instance()
 	randomize()
 	var x_spawn_location = randi() % 5 - 2
