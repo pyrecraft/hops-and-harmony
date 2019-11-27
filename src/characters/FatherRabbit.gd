@@ -226,7 +226,7 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Apparently you know how to make instruments"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh yeah I do know how to do that"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "If you get me a coconut I can make you a Lyre"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "If you get me a coconut I can make you a lyre"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How did you not mention this before?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Mention what?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
@@ -262,7 +262,7 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Dad no!"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "It's for the lyre"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Remember?"))
-					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh right!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Oh right"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Give me one second to make it for you"))
 				1:
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Your lyre is ready!"))

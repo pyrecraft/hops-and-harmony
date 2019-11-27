@@ -19,6 +19,12 @@ var leaf_points = PoolVector2Array()
 var tree_top_point = Vector2(0, 0)
 var coconut_radius = 15
 
+var game_day_L = 1
+var game_hour_L = 1
+var game_state_L = Globals.GameState.PLAYING
+var game_progress_L = Globals.GameProgress.GAME_START
+var has_coconut_L = false
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 #	starting_pos = Vector2(position.x, 450)
@@ -38,16 +44,43 @@ func _ready():
 	$HoverTalkTip.hide()
 	$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
 	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
+	
+	store.subscribe(self, "_on_store_changed")
+	game_day_L = Globals.get_state_value('game', 'day')
+	game_hour_L = Globals.get_state_value('game', 'hour')
+	game_state_L = Globals.get_state_value('game', 'state')
+	game_progress_L = Globals.get_state_value('game', 'progress')
+	has_coconut_L = Globals.get_state_value('game', 'has_coconut')
+
+func _on_store_changed(name, state):
+	if store.get_state() == null:
+		return
+	if store.get_state()['game']['day'] != null:
+		game_day_L = store.get_state()['game']['day']
+	if store.get_state()['game']['hour'] != null:
+		game_hour_L = store.get_state()['game']['hour']
+	if store.get_state()['game']['state'] != null:
+		game_state_L = store.get_state()['game']['state']
+	if store.get_state()['game']['progress'] != null:
+		game_progress_L = store.get_state()['game']['progress']
+	if store.get_state()['game']['has_coconut'] != null:
+		has_coconut_L = store.get_state()['game']['has_coconut']
 
 func spawn_coconut():
+	print('Spawning coconut')
 	var next_coconut = coconut.instance()
 	randomize()
 	var x_spawn_location = randi() % 5 - 2
 	next_coconut.initialize(Vector2(x_spawn_location, -10), coconut_radius)
 	add_child(next_coconut)
 
+func should_show_hover_tip():
+	if game_progress_L < Globals.GameProgress.COCONUT_STARTED:
+		return false
+	return true
+
 func _on_Area2D_body_entered(body):
-	if body.name == 'Rabbit' and !$HoverTalkTip.visible:
+	if body.name == 'Rabbit' and !$HoverTalkTip.visible and should_show_hover_tip():
 		$HoverTalkTip.show()
 
 func _on_Area2D_body_exited(body):

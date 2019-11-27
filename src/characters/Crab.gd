@@ -166,9 +166,9 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What's your name?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Crab', ".."))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "You don't have a name?"))
-					next_dialogue.push_back(Globals.create_dialogue_object('Crab', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "..."))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Come on, everyone has a name"))
-					next_dialogue.push_back(Globals.create_dialogue_object('Crab', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "...."))
 					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "If I tell you will you leave me alone?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Sure"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Carl"))
@@ -195,7 +195,7 @@ func get_next_dialogue():
 						next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Is that a coconut? "))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Yep! "))
 						next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Impressive "))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Oh thanks "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Thanks "))
 						next_dialogue.push_back(Globals.create_dialogue_object('Crab', ".. "))
 		Globals.GameProgress.COCONUT_COMPLETED:
 			match crab_dict_L[game_progress_L]:
@@ -210,7 +210,7 @@ func get_next_dialogue():
 			match crab_dict_L[game_progress_L]:
 				_:
 					pass
-	store.dispatch(actions.dialogue_increment_songbird_purple_dict(original_game_progress))
+	store.dispatch(actions.dialogue_increment_crab_dict(original_game_progress))
 	return next_dialogue
 
 func create_dialogue_object(speaker, text):

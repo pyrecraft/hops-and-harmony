@@ -87,7 +87,7 @@ func _on_store_changed(name, state):
 		game_has_coconut_L = store.get_state()['game']['has_coconut']
 
 func start_coconut_minigame():
-	var should_skip_minigame = false # Can use DEBUG_MODE here
+	var should_skip_minigame = true # Can use DEBUG_MODE here
 	if !should_skip_minigame:
 		var minigame = coconut_minigame.instance()
 		minigame.connect("minigame_won", self, "on_coconut_minigame_won")
@@ -100,6 +100,8 @@ func start_coconut_minigame():
 func on_coconut_minigame_won():
 	print("WIN!")
 	var special_palm_tree = get_tree().get_root().get_node('/root/Root/MainIsland/MiniIsland/SpecialPalmTree')
+	if special_palm_tree == null:
+		special_palm_tree = get_tree().get_root().get_node('/root/MainIsland/MiniIsland/SpecialPalmTree')
 	if special_palm_tree != null:
 		special_palm_tree.spawn_coconut()
 	store.dispatch(actions.game_set_state(Globals.GameState.PLAYING))

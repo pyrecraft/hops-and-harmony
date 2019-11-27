@@ -20,15 +20,15 @@ shape = SubResource( 3 )
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2( 207.135, -2.907 )
+position = Vector2( 239.756, -2.907 )
 shape = SubResource( 2 )
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
-position = Vector2( -204.213, -3.30481 )
+position = Vector2( -250.361, -3.30481 )
 shape = SubResource( 2 )
 
 [node name="DialogueBox" type="Node2D" parent="." instance=ExtResource( 2 )]
-position = Vector2( 0, -66.0966 )
+position = Vector2( 0, -96.7289 )
 z_index = 4
 script = ExtResource( 3 )
 __meta__ = {

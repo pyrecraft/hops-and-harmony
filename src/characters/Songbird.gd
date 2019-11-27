@@ -214,10 +214,8 @@ func get_next_dialogue():
 							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Nut! "))
 							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I have a special delivery!"))
 							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny has big nuts!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Don't fall into water!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll try"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "See ya!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "See ya!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Don't fall into water!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Don't fall into water!"))
 			Globals.GameProgress.COCONUT_COMPLETED:
 				match songbird_purple_dict_L[game_progress_L]:
 					_:

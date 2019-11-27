@@ -16,7 +16,7 @@ static func get_substate(substate):
 				'day': 1,
 				'hour': 10,
 				'state': Globals.GameState.PLAYING,
-				'progress': Globals.GameProgress.GAME_START,
+				'progress': Globals.GameProgress.COCONUT_STARTED,
 				'has_coconut': false
 			}
 		'dialogue':
