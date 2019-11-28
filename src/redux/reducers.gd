@@ -28,6 +28,22 @@ func game(state, action):
 		var next_state = store.shallow_copy(state)
 		next_state['has_coconut'] = action['has_coconut']
 		return next_state
+	if action['type'] == action_types.GAME_SET_SONG:
+		var next_state = store.shallow_copy(state)
+		next_state['song'] = action['song']
+		return next_state
+	if action['type'] == action_types.GAME_SET_BEAT_COUNT:
+		var next_state = store.shallow_copy(state)
+		next_state['beat_count'] = action['beat_count']
+		return next_state
+	if action['type'] == action_types.GAME_SET_CORRECT_NOTE_COUNT:
+		var next_state = store.shallow_copy(state)
+		next_state['correct_note_count'] = action['correct_note_count']
+		return next_state
+	if action['type'] == action_types.GAME_SET_WRONG_NOTE_COUNT:
+		var next_state = store.shallow_copy(state)
+		next_state['wrong_note_count'] = action['wrong_note_count']
+		return next_state
 	return state
 
 func dialogue(state, action):

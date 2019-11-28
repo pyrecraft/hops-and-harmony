@@ -41,7 +41,7 @@ func set_text(t):
 func set_action_text(t):
 	action_text = t
 
-func set_colors(regular):
+func set_box_color(regular):
 	box_color = regular
 	update()
 

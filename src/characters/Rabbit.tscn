@@ -1,7 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://src/characters/Rabbit.gd" type="Script" id=1]
 [ext_resource path="res://src/things/DialogueBox.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/minigames/PolyphonyAudioManager.tscn" type="PackedScene" id=3]
+[ext_resource path="res://audio/incidental-music.ogg" type="AudioStream" id=4]
 
 [sub_resource type="CircleShape2D" id=1]
 radius = 30.4974
@@ -21,4 +23,13 @@ current = true
 
 [node name="DialogueBox" parent="." instance=ExtResource( 2 )]
 position = Vector2( 0, -129.233 )
+
+[node name="PolyphonyAudioManager" parent="." instance=ExtResource( 3 )]
+
+[node name="SongFinishTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="HomeAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
 [connection signal="timeout" from="WalkSmokeTimer" to="." method="_on_WalkSmokeTimer_timeout"]
+[connection signal="timeout" from="SongFinishTimer" to="." method="_on_SongFinishTimer_timeout"]

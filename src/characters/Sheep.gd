@@ -170,6 +170,7 @@ func get_next_dialogue():
 						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hmmmm.."))
+						# INCLUDE: KNOWING THE FATHER KNOWS HOW TO MAKE AN INSTRUMENT
 						store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_SHEEPA))
 			Globals.GameProgress.TALK_TO_SHEEPA:
 				match sheep_dict_L[game_progress_L]:
@@ -205,35 +206,25 @@ func get_next_dialogue():
 				match sheep_dict_L[game_progress_L]:
 					0:
 						if !has_coconut_L:
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Konnichiwa! "))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Konnichiwa! "))
-							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Do those trees have coconuts?"))
-							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Only deez nuts!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Coconuts are only found on tall trees"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll keep looking"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Coco!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Coco!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
 						else:
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Nut! "))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Nut! "))
-							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I have a special delivery!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny has big nuts!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Don't fall into water!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll try"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "See ya!"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "See ya!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
 			Globals.GameProgress.COCONUT_COMPLETED:
 				match sheep_dict_L[game_progress_L]:
 					_:
-						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "La La La! "))
-						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "La La La! "))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you songbirds?"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Big birds!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "We occasionally sing"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Do you sing?"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I might play an instrument once it's ready!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Na Na Na!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Na Na Na!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
 			Globals.GameProgress.LYRE_OBTAINED:
 				match sheep_dict_L[game_progress_L]:
 					_:

@@ -24,6 +24,8 @@ var current_time
 var current_day_hour
 var current_day_number
 
+var game_progress_L = 0
+
 var previous_day_hour
 
 var transition_duration
@@ -34,48 +36,65 @@ enum cycle_state { NIGHT, DAWN, DAY, DUSK }
 
 func _ready():
 	store.subscribe(self, "_on_store_changed")
+	game_progress_L = Globals.get_state_value('game', 'progress')
+	transition_duration = (((day_duration / 24) * state_transition_duration) / 60) * 250
+	
+	handle_setting_cycle(game_progress_L)
 	if not on:
 		queue_free()
 
-	Globals.day_night = self
+#	Globals.day_night = self
+#
+#	day_duration = 60 * 60 * day_duration # Convert 'day_duration' from minutes to seconds
+#
+##	current_day_number = day_start_number
+#	current_day_number = Globals.get_state_value("game", "day")
+##	current_day_hour = current_time / (day_duration / 24)
+#	current_day_hour = Globals.get_state_value("game", "hour")
+#	current_time = (day_duration / 24) * current_day_hour
+#	previous_day_hour = current_day_hour
+#
+#
+#	if current_day_hour >= state_night_start_hour or current_day_hour < state_dawn_start_hour:
+#		cycle = cycle_state.NIGHT
+#		color = color_night
+#	elif current_day_hour >= state_dawn_start_hour and current_day_hour < state_day_start_hour:
+#		cycle = cycle_state.DAWN
+#		color = color_dawn
+#	elif current_day_hour >= state_day_start_hour and current_day_hour < state_dusk_start_hour:
+#		cycle = cycle_state.DAY
+#		color = color_day
+#	elif current_day_hour >= state_dusk_start_hour and current_day_hour < state_night_start_hour:
+#		cycle = cycle_state.DUSK
+#		color = color_dusk
 
-	day_duration = 60 * 60 * day_duration # Convert 'day_duration' from minutes to seconds
-
-#	current_day_number = day_start_number
-	current_day_number = Globals.get_state_value("game", "day")
-#	current_day_hour = current_time / (day_duration / 24)
-	current_day_hour = Globals.get_state_value("game", "hour")
-	current_time = (day_duration / 24) * current_day_hour
-	previous_day_hour = current_day_hour
-
-	transition_duration = (((day_duration / 24) * state_transition_duration) / 60)
-
-	if current_day_hour >= state_night_start_hour or current_day_hour < state_dawn_start_hour:
-		cycle = cycle_state.NIGHT
-		color = color_night
-	elif current_day_hour >= state_dawn_start_hour and current_day_hour < state_day_start_hour:
-		cycle = cycle_state.DAWN
-		color = color_dawn
-	elif current_day_hour >= state_day_start_hour and current_day_hour < state_dusk_start_hour:
-		cycle = cycle_state.DAY
-		color = color_day
-	elif current_day_hour >= state_dusk_start_hour and current_day_hour < state_night_start_hour:
-		cycle = cycle_state.DUSK
-		color = color_dusk
+func handle_setting_cycle(game_progress):
+	if game_progress <= Globals.GameProgress.WENT_OUTSIDE:
+		cycle_test(cycle_state.DAWN)
+	elif game_progress <= Globals.GameProgress.TALKED_TO_SHEEPA:
+		cycle_test(cycle_state.DAY)
+	elif game_progress <= Globals.GameProgress.LYRE_OBTAINED:
+		cycle_test(cycle_state.DUSK)
+	elif game_progress <= Globals.GameProgress.FINAL_SONG:
+		cycle_test(cycle_state.NIGHT)
 
 func _on_store_changed(name, state):
 	if store.get_state() == null:
 		return
+	if store.get_state()['game']['progress'] != null:
+		game_progress_L = store.get_state()['game']['progress']
+		handle_setting_cycle(game_progress_L)
 
 func _physics_process(delta):
-	day_cycle()
-	current_time += 1
+	pass
+#	day_cycle()
+#	current_time += 1
 
 func day_cycle():
 	current_day_hour = int(current_time / (day_duration / 24))
-	
+
 	if current_day_hour != previous_day_hour:
-		print('Updating hour to ' + str(current_day_hour))
+#		print('Updating hour to ' + str(current_day_hour))
 		store.dispatch(actions.game_set_hour(current_day_hour))
 		previous_day_hour = int(current_day_hour)
 
@@ -84,9 +103,9 @@ func day_cycle():
 		current_day_hour = 0
 		current_day_number += 1
 		store.dispatch(actions.game_set_hour(current_day_hour))
-		print('Updating hour to ' + str(current_day_hour))
+#		print('Updating hour to ' + str(current_day_hour))
 		store.dispatch(actions.game_set_day(current_day_number))
-		print('Updating day to ' + str(current_day_number))
+#		print('Updating day to ' + str(current_day_number))
 
 	if current_day_hour >= state_night_start_hour or current_day_hour < state_dawn_start_hour:
 		cycle_test(cycle_state.NIGHT)

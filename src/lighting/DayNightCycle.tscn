@@ -6,7 +6,8 @@
 editor/display_folded = true
 position = Vector2( 30.1074, 0 )
 script = ExtResource( 1 )
-day_duration = 5.0
+day_duration = 60.0
+day_start_hour = 5.0
 color_night = Color( 0.290196, 0.317647, 0.768627, 1 )
 
 [node name="Tween" type="Tween" parent="."]

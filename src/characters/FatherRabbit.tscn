@@ -7,7 +7,7 @@
 radius = 30.4974
 
 [sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 49.0606, 71.2265 )
+extents = Vector2( 68.5933, 71.2265 )
 
 [node name="FatherRabbit" type="KinematicBody2D"]
 script = ExtResource( 1 )
@@ -22,7 +22,7 @@ position = Vector2( 23.1339, -142.108 )
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2( -234.644, -39.658 )
+position = Vector2( -283.625, -39.658 )
 shape = SubResource( 2 )
 
 [node name="ShowStartTextTimer" type="Timer" parent="."]

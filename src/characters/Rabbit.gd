@@ -1,5 +1,8 @@
 extends KinematicBody2D
 
+const note_emission = preload('res://src/effects/NoteEmission.tscn')
+const note_tracker = preload('res://src/minigames/NoteTracker.tscn')
+
 const initial_state = preload("res://src/redux/initial_state.gd")
 const coconut_minigame = preload("res://src/minigames/CoconutMinigame.tscn")
 const color_eyes = Color('#2a363b')
@@ -8,6 +11,7 @@ const color_primary = Color('#dcb6b6')
 const walk_smoke = preload('res://src/effects/WalkSmoke.tscn')
 export var coconut_color = Color('965a3e')
 export var coconut_hole_color = Color('#2a363b')
+export var lyre_string_color = Color('#2a363b')
 
 # Movement
 var gravity = 950
@@ -31,8 +35,16 @@ var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
 var game_progress_L = Globals.GameProgress.GAME_START
 var game_has_coconut_L = false
+var game_song_L = ''
+var beat_count_L = 0
+var lyre_draw_points = PoolVector2Array()
+var correct_note_count_L
+var wrong_note_count_L
 
 var last_island = Island.MAIN
+var beats_per_second = 0
+var is_beat_count_set = false
+var note_tracker_inst
 
 enum Island {
 	MAIN,
@@ -43,21 +55,26 @@ enum RabbitState {
 	IDLE,
 	WALKING,
 	JUMPING,
-	TALKING
+	TALKING,
+	PLAYING_LYRE
 }
 
 func _ready():
 	store.subscribe(self, "_on_store_changed")
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
-	game_progress_L = initial_state.get_state()['game']['progress']
+	game_progress_L = Globals.get_state_value('game', 'progress')
 	game_has_coconut_L = Globals.get_state_value('game', 'has_coconut')
+	game_song_L = Globals.get_state_value('game', 'song')
+	beat_count_L = Globals.get_state_value('game', 'beat_count')
+	lyre_draw_points = get_lyre_points(1.0)
+	correct_note_count_L = Globals.get_state_value('game', 'correct_note_count')
+	wrong_note_count_L = Globals.get_state_value('game', 'wrong_note_count')
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
 	if dialogue_queue_L.empty():
 		$DialogueBox.queue_clear_text()
-		print('Rabbit finished talking.')
 		current_rabbit_state = RabbitState.IDLE
 
 func set_position(pos):
@@ -66,9 +83,7 @@ func set_position(pos):
 func _on_store_changed(name, state):
 	if store.get_state() == null:
 		return
-	if store.get_state()['dialogue']['queue'] != null:
-		dialogue_queue_L = store.get_state()['dialogue']['queue']
-		handle_next_dialogue(dialogue_queue_L)
+	
 	if store.get_state()['dialogue']['npc_position'] != null:
 		npc_position_L = store.get_state()['dialogue']['npc_position']
 	if store.get_state()['game']['day'] != null:
@@ -85,9 +100,20 @@ func _on_store_changed(name, state):
 		game_progress_L = store.get_state()['game']['progress']
 	if store.get_state()['game']['has_coconut'] != null:
 		game_has_coconut_L = store.get_state()['game']['has_coconut']
+	if store.get_state()['game']['song'] != null:
+		game_song_L = store.get_state()['game']['song']
+	if store.get_state()['game']['beat_count'] != null:
+		beat_count_L = store.get_state()['game']['beat_count']
+	if store.get_state()['dialogue']['queue'] != null:
+		dialogue_queue_L = store.get_state()['dialogue']['queue']
+		handle_next_dialogue(dialogue_queue_L)
+	if store.get_state()['game']['correct_note_count'] != null:
+		correct_note_count_L = store.get_state()['game']['correct_note_count']
+	if store.get_state()['game']['wrong_note_count'] != null:
+		wrong_note_count_L = store.get_state()['game']['wrong_note_count']
 
 func start_coconut_minigame():
-	var should_skip_minigame = true # Can use DEBUG_MODE here
+	var should_skip_minigame = false # Can use DEBUG_MODE here
 	if !should_skip_minigame:
 		var minigame = coconut_minigame.instance()
 		minigame.connect("minigame_won", self, "on_coconut_minigame_won")
@@ -119,19 +145,144 @@ func handle_next_dialogue(queue):
 	
 	var next_dialogue_obj = queue.front()
 	var speaker = next_dialogue_obj['speaker']
-	current_rabbit_state = RabbitState.TALKING
 	
-	if speaker != name:
+	if current_rabbit_state != RabbitState.PLAYING_LYRE:
+		current_rabbit_state = RabbitState.TALKING
+	
+	if speaker != name and speaker != 'Song':
 		return
 	
-	var dialogue_text = next_dialogue_obj['text']
-	if dialogue_text != $DialogueBox.get_text(): # NOTE: this means you cannot say the same text twice
-		print('Setting next dialogue for Rabbit: ' + dialogue_text)
-		$DialogueBox.set_text(dialogue_text)
+	if speaker == 'Song':
+		if is_beat_count_set:
+			pass
+		else:
+			
+			$DialogueBox.clear_text()
+			var song_name = next_dialogue_obj['text']
+			beats_per_second = Globals.get_beats_per_second(song_name)
+			current_rabbit_state = RabbitState.PLAYING_LYRE
+			
+			if game_song_L != song_name:
+				store.dispatch(actions.game_set_song(song_name))
+			
+			if !is_beat_count_set:
+				is_beat_count_set = true
+				store.dispatch(actions.game_set_beat_count(0))
+				store.dispatch(actions.game_set_correct_note_count(0))
+				store.dispatch(actions.game_set_wrong_note_count(0))
+			$HomeAudio.play()
+			
+			if note_tracker_inst == null:
+				print('Instancing note tracker')
+				note_tracker_inst = note_tracker.instance()
+				note_tracker_inst.position = Vector2(-167, -250)
+				add_child(note_tracker_inst)
+			
+	else:
+		var dialogue_text = next_dialogue_obj['text']
+		if dialogue_text != $DialogueBox.get_text(): # NOTE: this means you cannot say the same text twice
+			print('Setting next dialogue for Rabbit: ' + dialogue_text)
+			$DialogueBox.set_text(dialogue_text)
+
+func _input(event):
+	if game_progress_L >= Globals.GameProgress.LYRE_OBTAINED and \
+		event.is_pressed() and not event.is_echo() and Globals.is_playing_lyre():
+		if Input.is_key_pressed(Globals.keys[0]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("67b6bd")
+		if Input.is_key_pressed(Globals.keys[1]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("7869c4")
+		if Input.is_key_pressed(Globals.keys[2]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("8b3f96")
+		if Input.is_key_pressed(Globals.keys[3]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("b86962")
+		if Input.is_key_pressed(Globals.keys[4]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("bfce72")
+		if Input.is_key_pressed(Globals.keys[5]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("94e089")
+		if Input.is_key_pressed(Globals.keys[6]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("55a049")
+		if Input.is_key_pressed(Globals.keys[7]):
+			var add_note = note_emission.instance()
+			self.add_child(add_note)
+			add_note.set_color("2399bd")
 
 func _process(delta):
 	handle_states(delta)
 	update()
+	if current_rabbit_state == RabbitState.PLAYING_LYRE:
+		handle_beat_management()
+
+func get_playback_position(song):
+	match song:
+		'FatherRabbit':
+			return $HomeAudio.get_playback_position()
+	
+	return 0
+
+func handle_beat_management():
+	var playback_position = get_playback_position(game_song_L)
+	if playback_position > beats_per_second * beat_count_L:
+		beat_count_L += 1
+		store.dispatch(actions.game_set_beat_count(beat_count_L))
+		print(beat_count_L)
+	match game_song_L:
+		'FatherRabbit':
+			if beat_count_L >= 48 and $SongFinishTimer.is_stopped():
+				print('starting timer!')
+				$SongFinishTimer.start()
+
+func song_finished():
+	store.dispatch(actions.dialogue_set_queue(get_score_validation_text()))
+	print('Ending FatherRabbit song')
+	is_beat_count_set = false
+	store.dispatch(actions.game_set_song(''))
+	store.dispatch(actions.game_set_state(Globals.GameState.PLAYING))
+	store.dispatch(actions.game_set_beat_count(0))
+	current_rabbit_state = RabbitState.TALKING
+	store.dispatch(actions.dialogue_pop_queue())
+	if dialogue_queue_L.empty():
+		$DialogueBox.queue_clear_text()
+		current_rabbit_state = RabbitState.IDLE
+	note_tracker_inst.queue_free()
+	note_tracker_inst = null
+#	$Camera2D/NoteTracker.clear_current_notes()
+
+func get_score_validation_text():
+	var text_arr = []
+	var score_percent = float(correct_note_count_L) / float((correct_note_count_L + wrong_note_count_L))
+	print('Score percent was : ' + str(score_percent))
+	text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', ".."))
+	if score_percent > .90:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Fantastic!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+	elif score_percent > .80:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey not too shabby!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+	elif score_percent > .65:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You missed a few notes but you'll get there"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+	else:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You definitely have some room for improvement"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder"))
+	return text_arr
 
 func _physics_process(delta):
 	set_velocities(delta)
@@ -205,8 +356,8 @@ func set_velocities(delta):
 	velocity = move_and_slide(velocity, Vector2(0, -1))
 
 func is_walking_allowed():
-	return current_rabbit_state != RabbitState.TALKING and \
-		game_state_L != Globals.GameState.MINIGAME
+	return current_rabbit_state != RabbitState.TALKING and current_rabbit_state != RabbitState.PLAYING_LYRE \
+		and game_state_L != Globals.GameState.MINIGAME
 
 func is_walking_left():
 	return Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A)
@@ -229,8 +380,54 @@ func clamp_pos_to_screen():
 func _draw():
 	draw_body()
 	draw_head()
+	if game_progress_L >= Globals.GameProgress.LYRE_OBTAINED:
+		draw_lyre()
 	if game_has_coconut_L:
 		draw_coconut()
+	
+
+func get_lyre_points(trig_offset):
+	var points = PoolVector2Array()
+	var hinge_starting_point = Vector2(circle_center.x + 25.0, circle_center.y - 15.0)
+	points.append_array(get_arc_points(hinge_starting_point, 10, 30, -90, trig_offset + 0.2, 8))
+#
+	points.append_array(get_arc_points(circle_center, 20, 60, 180, trig_offset, 5))
+	points.append_array(get_arc_points(circle_center, 20, 180, 300, trig_offset, 5))
+#
+	var left_hinge_starting_point = Vector2(circle_center.x - 25.0, circle_center.y - 15.0)
+	points.append_array(get_arc_points(left_hinge_starting_point, 10, 90, -30, trig_offset + 0.2, 8))
+	
+	return points
+
+func draw_lyre():
+	lyre_draw_points = get_lyre_points(current_scale)
+	
+	var num_strings = 8
+	var string_offset_x = 35.0 / num_strings
+	var y_start = circle_center.y - 15.0 - current_scale
+	var y_end = circle_center.y + 18.0 - current_scale
+	for i in range(0, num_strings):
+		var from_pos = Vector2(circle_center.x - 15.0 + (i * string_offset_x), y_start)
+		var end_pos = Vector2(circle_center.x - 15.0 + (i * string_offset_x), y_end)
+		if i >= 3 and i <= 5:
+			end_pos.y += 3.0
+		if i == num_strings - 1:
+			end_pos.y -= 2.0
+		draw_line(from_pos, end_pos, lyre_string_color, 2.0)
+	for i in range(0, lyre_draw_points.size()):
+		draw_circle(lyre_draw_points[i], 4, coconut_color)
+	draw_polyline(lyre_draw_points, coconut_color, 8)
+	draw_line(Vector2(circle_center.x - 15.0, circle_center.y - 15.0 - current_scale), \
+		Vector2(circle_center.x + 15.0, circle_center.y - 15.0 - current_scale), coconut_color, 4)
+
+func get_arc_points(center, radius, angle_from, angle_to, trig_multiplier, nb_points):
+	var points_arc = PoolVector2Array()
+
+	for i in range(nb_points + 1):
+		var angle_point = deg2rad(angle_from + i * (angle_to-angle_from) / nb_points - 90)
+		points_arc.push_back(center + Vector2(cos(angle_point) * 1 / trig_multiplier, sin(angle_point) * trig_multiplier) * radius)
+	
+	return points_arc
 
 var pos_offset_x = 0
 func draw_coconut():
@@ -382,3 +579,6 @@ func spawn_landing_smoke():
 		get_parent().add_child(next_smoke)
 		next_smoke.set_position(Vector2(position.x + x_offset, position.y + 20))
 		next_smoke.set_x_movement_rate(i * 5)
+
+func _on_SongFinishTimer_timeout():
+	song_finished()

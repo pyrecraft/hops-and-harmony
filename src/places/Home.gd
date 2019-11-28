@@ -6,10 +6,32 @@ var primary_color = Color('8f4426')
 var game_start_rabbit_position = Vector2(0, 0)
 var falling_down_rabbit_position = Vector2(-490, -485)
 
+var game_progress_L = Globals.GameProgress.GAME_START
+var game_song_L = ''
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	store.subscribe(self, "_on_store_changed")
+	game_song_L = Globals.get_state_value('game', 'song')
+	game_progress_L = Globals.get_state_value('game', 'progress')
 	$BackgroundCanvas/Background.set_is_home(true)
 	set_rabbit()
+
+func _on_store_changed(name, state):
+	if store.get_state() == null:
+		return
+	if store.get_state()['game']['progress'] != null:
+		game_progress_L = store.get_state()['game']['progress']
+	if store.get_state()['game']['song'] != null:
+		var prev_song = game_song_L
+		game_song_L = store.get_state()['game']['song']
+		update_song_playing(prev_song, game_song_L)
+
+func update_song_playing(prev_song, curr_song):
+	if curr_song == '' and prev_song != '':
+		$AudioStreamPlayer.stop()
+	elif curr_song != '' and prev_song == '':
+		$AudioStreamPlayer.stop()
 
 func set_rabbit():
 	var player_rabbit = rabbit.instance()

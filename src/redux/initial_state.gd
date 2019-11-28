@@ -14,10 +14,14 @@ static func get_substate(substate):
 		'game':
 			return {
 				'day': 1,
-				'hour': 10,
+				'hour': 5,
 				'state': Globals.GameState.PLAYING,
-				'progress': Globals.GameProgress.COCONUT_STARTED,
-				'has_coconut': false
+				'progress': Globals.GameProgress.GAME_START,
+				'has_coconut': false,
+				'song': '',
+				'beat_count': 0,
+				'correct_note_count': 0,
+				'wrong_note_count': 0
 			}
 		'dialogue':
 			return {

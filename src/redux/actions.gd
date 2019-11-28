@@ -14,10 +14,28 @@ func game_set_hour(hour):
 		'hour': hour
 	}
 
+func game_set_correct_note_count(correct_note_count):
+	return {
+		'type': types.GAME_SET_CORRECT_NOTE_COUNT,
+		'correct_note_count': correct_note_count
+	}
+
+func game_set_wrong_note_count(wrong_note_count):
+	return {
+		'type': types.GAME_SET_WRONG_NOTE_COUNT,
+		'wrong_note_count': wrong_note_count
+	}
+
 func game_set_has_coconut(has_coconut):
 	return {
 		'type': types.GAME_SET_HAS_COCONUT,
 		'has_coconut': has_coconut
+	}
+
+func game_set_beat_count(beat_count):
+	return {
+		'type': types.GAME_SET_BEAT_COUNT,
+		'beat_count': beat_count
 	}
 
 func game_set_state(state):
@@ -30,6 +48,12 @@ func game_set_progress(progress):
 	return {
 		'type': types.GAME_SET_PROGRESS,
 		'progress': progress
+	}
+
+func game_set_song(song):
+	return {
+		'type': types.GAME_SET_SONG,
+		'song': song
 	}
 
 func dialogue_set_queue(queue):
@@ -95,22 +119,4 @@ func dialogue_increment_father_dict(game_progress_index):
 	return {
 		'type': types.DIALOGUE_INCREMENT_FATHER_DICT,
 		'game_progress_index': game_progress_index
-	}
-
-func canvas_set_starting_vector(vec):
-	return {
-		'type': types.CANVAS_SET_STARTING_VECTOR,
-		'starting_vector': vec
-	}
-
-func canvas_set_grid(grid):
-	return {
-		'type': types.CANVAS_SET_GRID,
-		'grid': grid
-	}
-
-func canvas_add_to_grid(grid):
-	return {
-		'type': types.CANVAS_SET_GRID,
-		'grid': grid
 	}

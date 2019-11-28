@@ -205,6 +205,7 @@ func get_next_dialogue():
 							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Konnichiwa! "))
 							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Do those trees have coconuts?"))
 							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Only deez nuts!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
 							next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Coconuts are only found on tall trees"))
 							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll keep looking"))
 							next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Coco!"))
@@ -231,7 +232,15 @@ func get_next_dialogue():
 			Globals.GameProgress.LYRE_OBTAINED:
 				match songbird_purple_dict_L[game_progress_L]:
 					_:
-						pass
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar, Lyre!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar, Lyre!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you saying 'Liar'?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Or 'Lyre'?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Liar!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Want to play us a song?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I might know something"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar! "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar! "))
 	store.dispatch(actions.dialogue_increment_songbird_purple_dict(original_game_progress))
 	return next_dialogue
 

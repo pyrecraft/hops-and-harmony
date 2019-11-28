@@ -21,6 +21,7 @@ var scale_polarity = 1 # +1 or -1
 var circle_center = Vector2(0, -17)
 var current_rabbit_state = RabbitState.IDLE
 var current_hover_tip
+var current_play_hover_tip
 var is_rabbit_in_speak_zone = false
 
 # State Tree
@@ -32,7 +33,10 @@ var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
 var game_progress_L = Globals.GameProgress.GAME_START
+var game_song_L = ''
 var has_coconut_L = false
+var correct_note_count_L
+var wrong_note_count_L
 
 enum RabbitState {
 	IDLE,
@@ -50,9 +54,9 @@ func _ready():
 	game_progress_L = initial_state.get_state()['game']['progress']
 	father_dict_L = Globals.get_state_value('dialogue', 'father_dict')
 	has_coconut_L = Globals.get_state_value('game', 'has_coconut')
-
-func _on_ShowStartTextTimer_timeout():
-	current_hover_tip.show()
+	game_song_L = Globals.get_state_value('game', 'song')
+	correct_note_count_L = Globals.get_state_value('game', 'correct_note_count')
+	wrong_note_count_L = Globals.get_state_value('game', 'wrong_note_count')
 
 func _on_Area2D_body_entered(body):
 	if body.name == 'Rabbit' and current_hover_tip == null:
@@ -63,6 +67,15 @@ func _on_Area2D_body_entered(body):
 		current_hover_tip.set_box_position(Vector2(-13, -170))
 		is_rabbit_in_speak_zone = true
 		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
+	if body.name == 'Rabbit' and current_play_hover_tip == null and Globals.has_lyre():
+		current_play_hover_tip = hover_tip.instance()
+		add_child(current_play_hover_tip)
+		current_play_hover_tip.z_index = 1
+		current_play_hover_tip.set_action_text('Play')
+		current_play_hover_tip.set_text('W')
+		current_play_hover_tip.set_box_color('9b45e4')
+		current_play_hover_tip.set_text_offset_x(-3)
+		current_play_hover_tip.set_box_position(Vector2(-13, -220))
 
 func _on_Area2D_body_exited(body):
 	if body.name == 'Rabbit' and current_hover_tip != null:
@@ -70,6 +83,10 @@ func _on_Area2D_body_exited(body):
 		current_hover_tip.queue_free()
 		current_hover_tip = null
 		is_rabbit_in_speak_zone = false
+	if body.name == 'Rabbit' and current_play_hover_tip != null:
+#		print('Deleting hover tip!')
+		current_play_hover_tip.queue_free()
+		current_play_hover_tip = null
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
@@ -93,16 +110,27 @@ func _on_store_changed(name, state):
 		game_state_L = store.get_state()['game']['state']
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
-		print('Game progress now: ' + str(game_progress_L))
+#		print('Game progress now: ' + str(game_progress_L))
 	if store.get_state()['dialogue']['father_dict'] != null:
 		father_dict_L = store.get_state()['dialogue']['father_dict']
 	if store.get_state()['game']['has_coconut'] != null:
 		has_coconut_L = store.get_state()['game']['has_coconut']
+	if store.get_state()['game']['song'] != null:
+		game_song_L = store.get_state()['game']['song']
+	if store.get_state()['game']['correct_note_count'] != null:
+		correct_note_count_L = store.get_state()['game']['correct_note_count']
+	if store.get_state()['game']['wrong_note_count'] != null:
+		wrong_note_count_L = store.get_state()['game']['wrong_note_count']
 
 func handle_hover_tip(queue):
 	if !queue.empty() and current_hover_tip != null:
 		current_hover_tip.queue_free()
 		current_hover_tip = null
+	
+	if !queue.empty() and current_play_hover_tip != null:
+		current_play_hover_tip.queue_free()
+		current_play_hover_tip = null
+		
 
 func handle_next_dialogue(queue):
 	if queue.empty():
@@ -129,6 +157,51 @@ func _input(event):
 		store.dispatch(actions.dialogue_set_npc_position(position))
 		store.dispatch(actions.dialogue_set_queue(get_next_dialogue()))
 #		store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_DAD))
+	if Input.is_key_pressed(KEY_W) and can_start_playing():
+		print('Attempted to play for Dad!')
+		store.dispatch(actions.dialogue_set_queue(get_next_playing_dialogue()))
+#		store.dispatch(actions.game_set_song(name))
+
+func can_start_playing():
+	return is_rabbit_in_speak_zone and (current_play_hover_tip != null and current_play_hover_tip.visible)
+
+func get_next_playing_dialogue():
+	var next_dialogue = []
+	var original_game_progress = game_progress_L
+	match game_progress_L:
+		Globals.GameProgress.LYRE_OBTAINED:
+#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hey Dad"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Can I practice a song for you?"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Sure thing hun"))
+#			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Thanks"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Song', "FatherRabbit"))
+#			var score_validation_arr = get_score_validation_text()
+#			for i in range(0, score_validation_arr.size()):
+#				next_dialogue.push_back(score_validation_arr[i])
+	return next_dialogue
+
+func get_score_validation_text():
+	var text_arr = []
+	var score_percent = float(correct_note_count_L) / float((correct_note_count_L + wrong_note_count_L))
+	print('Score percent was : ' + str(score_percent))
+	text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', ".."))
+	if score_percent > .90:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Fantastic!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+	elif score_percent > .80:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey not too shabby!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+	elif score_percent > .65:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You missed a few notes but you'll get there"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+	else:
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You definitely have some room for improvement"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder"))
+	return text_arr
 
 func get_next_dialogue():
 	var next_dialogue = []
@@ -271,13 +344,17 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How many other hidden talents do you have?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "I can make my belly expand very wide"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "That isn't a very 'hidden' talent"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "That isn't a talent, Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "It's also not very 'hidden'"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Anyways, just use numbers 1-8 to play the lyre"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What does use 1-8 mean?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Your puppet master will know"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I worry about you sometimes, Dad"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I worry about you sometimes"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Also you can practice playing to a song"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Just make sure to hit the right notes at the right time!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Talk to me again to play a practice song"))
 					store.dispatch(actions.game_set_progress(Globals.GameProgress.LYRE_OBTAINED))
 				_:
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How do I play the lyre again?"))

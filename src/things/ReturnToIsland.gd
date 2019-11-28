@@ -12,7 +12,6 @@ func _ready():
 	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
 	$HoverTalkTip.hide()
 	game_progress_L = Globals.get_state_value('game', 'progress')
-	print(game_progress_L)
 
 func _on_store_changed(name, state):
 	if store.get_state() == null:

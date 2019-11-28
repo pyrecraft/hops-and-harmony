@@ -16,6 +16,7 @@ var rabbit_mini_island_pos = Vector2(6600, 400)
 
 # State Tree
 var game_progress_L = Globals.GameProgress.GAME_START
+var game_song_L = ''
 var has_set_game_progress = false
 
 # Called when the node enters the scene tree for the first time.
@@ -23,9 +24,16 @@ func _ready():
 	store.subscribe(self, "_on_store_changed")
 	set_rabbit()
 	game_progress_L = Globals.get_state_value('game', 'progress')
+	game_song_L = Globals.get_state_value('game', 'song')
 	if game_progress_L == Globals.GameProgress.TALKED_TO_DAD or game_progress_L == Globals.GameProgress.GAME_START:
 		store.dispatch(actions.game_set_progress(Globals.GameProgress.WENT_OUTSIDE))
 		print('Went outside!')
+
+func update_song_playing(prev_song, curr_song):
+	if curr_song == '' and prev_song != '':
+		$AudioStreamPlayer.stop()
+	elif curr_song != '' and prev_song == '':
+		$AudioStreamPlayer.stop()
 
 func _process(delta):
 	if !has_set_game_progress:
@@ -39,6 +47,10 @@ func _on_store_changed(name, state):
 		return
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
+	if store.get_state()['game']['song'] != null:
+		var prev_song = game_song_L
+		game_song_L = store.get_state()['game']['song']
+		update_song_playing(prev_song, game_song_L)
 
 func set_rabbit():
 	var player_rabbit = rabbit.instance()

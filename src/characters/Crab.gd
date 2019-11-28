@@ -209,7 +209,11 @@ func get_next_dialogue():
 		Globals.GameProgress.LYRE_OBTAINED:
 			match crab_dict_L[game_progress_L]:
 				_:
-					pass
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Carl!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Hi"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Want to hear a song?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Not really"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Maybe when the mood is right"))
 	store.dispatch(actions.dialogue_increment_crab_dict(original_game_progress))
 	return next_dialogue
 
