@@ -27,6 +27,7 @@ var center_pos = Vector2(0, -10)
 
 var current_state = State.IDLE
 var current_hover_tip
+var current_play_hover_tip
 var is_rabbit_in_speak_zone = false
 
 # State Tree
@@ -61,6 +62,8 @@ var base_sheep_body_points = get_arc_points(center_pos, 95 * (4.75/10.0), \
 var sheep_body_circle_radiuses = []
 var sheep_body_circle_trigs = []
 
+
+
 func _ready():
 	store.subscribe(self, "_on_store_changed")
 	for i in range(0, base_sheep_body_points.size() - 1):
@@ -79,6 +82,12 @@ func _ready():
 	$DialogueBox.clear_text()
 	$Area2D.connect("body_entered", self, "_on_Area2D_body_entered")
 	$Area2D.connect("body_exited", self, "_on_Area2D_body_exited")
+	check_for_final_song_state(game_progress_L)
+
+func check_for_final_song_state(game_progress):
+	if game_progress == Globals.GameProgress.FINAL_SONG:
+		walk_speed = 0
+		is_moving_left = true
 
 func _on_store_changed(name, state):
 	if store.get_state() == null:
@@ -97,6 +106,7 @@ func _on_store_changed(name, state):
 		game_state_L = store.get_state()['game']['state']
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
+		check_for_final_song_state(game_progress_L)
 	if store.get_state()['dialogue']['sheep_dict'] != null:
 		sheep_dict_L = store.get_state()['dialogue']['sheep_dict']
 	if store.get_state()['game']['has_coconut'] != null:
@@ -106,6 +116,10 @@ func handle_hover_tip(queue):
 	if !queue.empty() and current_hover_tip != null:
 		current_hover_tip.queue_free()
 		current_hover_tip = null
+	
+	if !queue.empty() and current_play_hover_tip != null:
+		current_play_hover_tip.queue_free()
+		current_play_hover_tip = null
 
 func handle_next_dialogue(queue):
 	if queue.empty():
@@ -137,11 +151,18 @@ func can_start_dialogue():
 	return is_rabbit_in_speak_zone and dialogue_queue_L.empty() \
 		and (current_hover_tip != null and current_hover_tip.visible)
 
+func can_start_playing():
+	return is_rabbit_in_speak_zone and (current_play_hover_tip != null and current_play_hover_tip.visible)
+
+
 func _input(event):
 	if Input.is_key_pressed(KEY_E) and can_start_dialogue():
 		print('Attempted to speak with Rabbit!')
 		store.dispatch(actions.dialogue_set_npc_position(position))
 		store.dispatch(actions.dialogue_set_queue(get_next_dialogue()))
+	if Input.is_key_pressed(KEY_W) and can_start_playing():
+		print('Attempting to play Final Song')
+		get_tree().change_scene("res://src/places/FinalScene.tscn")
 
 func get_next_dialogue():
 	var original_game_progress = game_progress_L
@@ -159,76 +180,133 @@ func get_next_dialogue():
 						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Must tell me their name and not be nervous"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Uhhmmm.."))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'm Harley"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Harley it seems, but Harley it does not!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For slow you crossed across those rocks"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "If you were your name alike"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "You'd have ravaged across like a Harley Davidson Bike"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Hi Harley! Nice to meet you"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Welcome to Easter Island"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Thanks"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Say.."))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "You look a lot like this gray rabbit I've seen years ago"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "He was a master at making instruments"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you talking about my dad?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "He looked just like you"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Except a little fatter"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Yup that's my dad"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "He holds the secrets of crafting instruments"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Really??"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Well what should I do with that?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "The help you seek both far and wide,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Brought you to this place in time"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "What you seek is brought in song,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "And where you find it was with you all along"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hmmmm.."))
 						# INCLUDE: KNOWING THE FATHER KNOWS HOW TO MAKE AN INSTRUMENT
 						store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_SHEEPA))
 			Globals.GameProgress.TALK_TO_SHEEPA:
 				match sheep_dict_L[game_progress_L]:
-					0:
+					_:
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "..Excuse me"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you the Sheepa?"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Hello my friend, who hibbots and hops,"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Whose hopped across those stone bowled tops"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "He who wishes to ordain my service"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "She who wishes to ordain my service"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Must tell me their name and not be nervous"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Uhhmmm.."))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'm Harley"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Harley it seems, but Harley it does not!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For slow you crossed across those rocks"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "If you were your name alike"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "You'd have ravaged across like a Harley Davidson Bike"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Hi Harley! Nice to meet you"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Welcome to Easter Island"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Thanks"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Say.."))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "You look a lot like this gray rabbit I've seen years ago"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "He was a master at making instruments"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
-						store.dispatch(actions.game_set_progress(Globals.GameProgress.TALKED_TO_SHEEPA))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you talking about my dad?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "He looked just like you"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Except a little fatter"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Yup that's my dad"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "He holds the secrets of crafting instruments"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Really??"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Well what should I do with that?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "The help you seek both far and wide,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Brought you to this place in time"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "What you seek is brought in song,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "And with you it was all along"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hmmmm.."))
 			Globals.GameProgress.TALKED_TO_SHEEPA:
 				match sheep_dict_L[game_progress_L]:
+					0:
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "So do you always talk in poem?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "That is neither here nor there,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Questioned by a pink, fat hare"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hey!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Were she red or blue or orange"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "She might just find a way to.."))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', ".."))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Darn it nothing rhymes with orange!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "??"))
 					_:
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What should I do next?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "The help you seek both far and wide,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Brought you to this place in time"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "What you seek is brought in song,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "And with you it was all along"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Hmmmm.."))
 			Globals.GameProgress.COCONUT_STARTED:
 				match sheep_dict_L[game_progress_L]:
 					0:
 						if !has_coconut_L:
-							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Do you know where I could find a coconut?"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "The coconut you seek is small and round,"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "And where you are, it must be found"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "If you're blind, then here's a solution,"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Try increasing your screen resolution"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Screen resolution?"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "The gods will understand"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Sometimes I can't tell if your wise"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Or just making stuff up"))
 						else:
-							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
-							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Look!"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "That's a nice coconut right there,"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "One to feed a hungry hare"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Don't you lose it, it might fall down,"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "If you fall into the water and drown"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "That's a bit dark don't you think?"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Drowning doesn't imply death"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I think it does"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you sure you're as wise as they say you are?"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Wise I am and wise I be,"))
+							next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "(I'm gonna go now)"))
 			Globals.GameProgress.COCONUT_COMPLETED:
 				match sheep_dict_L[game_progress_L]:
 					_:
-						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I heard you might be able to help me"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Help you seek both far and wide,"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Across the boundless, endless sky"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "But look no further, and roam no more"))
-						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "For what you seek is back at home"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'm waiting for my lyre"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Wait you are, but wait you be,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Why oh why did you come to me?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "I am not the waiting master,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Wait at home, you'll progress much faster"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Ok.. "))
 			Globals.GameProgress.LYRE_OBTAINED:
 				match sheep_dict_L[game_progress_L]:
 					_:
-						pass
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'd like to play a song for you"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Do you think you're ready?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Are your hands quite steady?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Tonight the full moon is out,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "We'll celebrate in a great big bout"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I might be ready "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "If you're not go home and practice,"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Play for others and learn some tactics"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Once you're ready, come play for me"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "We'll do the the great big finale"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll return when I'm ready"))
+						store.dispatch(actions.game_set_progress(Globals.GameProgress.FINAL_SONG))
+			Globals.GameProgress.FINAL_SONG:
+				match sheep_dict_L[game_progress_L]:
+					_:
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'd like to play a song for you"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Once you're ready, come play for me"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "We'll do the the great big finale"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll return when I'm ready"))
 	store.dispatch(actions.dialogue_increment_sheep_dict(original_game_progress))
 	return next_dialogue
 
@@ -242,7 +320,6 @@ func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
 	if dialogue_queue_L.empty():
 		$DialogueBox.queue_clear_text()
-		print('Crab finished talking.')
 
 func _process(delta):
 	handle_states(delta)
@@ -283,21 +360,23 @@ func handle_states(delta):
 		scale_polarity = -1
 
 func handle_leg_states(delta, index):
-	leg_current_scale_list[index] += leg_scale_rate_list[index] * delta * leg_scale_polarity_list[index]
-	if leg_current_scale_list[index] < -1.25: # Forward
-		leg_scale_polarity_list[index] = 1
-		leg_scale_rate_list[index] = 2
-	elif leg_current_scale_list[index] > 1.25: # Backwards
-		leg_scale_polarity_list[index] = -1
-		leg_scale_rate_list[index] = 2
+	if !Globals.is_in_final_song():
+		leg_current_scale_list[index] += leg_scale_rate_list[index] * delta * leg_scale_polarity_list[index]
+		if leg_current_scale_list[index] < -1.25: # Forward
+			leg_scale_polarity_list[index] = 1
+			leg_scale_rate_list[index] = 2
+		elif leg_current_scale_list[index] > 1.25: # Backwards
+			leg_scale_polarity_list[index] = -1
+			leg_scale_rate_list[index] = 2
 
 func set_velocities(delta):
 	velocity.x = 0
 	velocity.y += gravity * delta
-	if position.x < 6650 and is_moving_left:
-		is_moving_left = false
-	elif position.x > 7850 and !is_moving_left:
-		is_moving_left = true
+	if !Globals.is_in_final_song():
+		if position.x < 6650 and is_moving_left:
+			is_moving_left = false
+		elif position.x > 7850 and !is_moving_left:
+			is_moving_left = true
 	
 	if is_moving_left:
 		velocity.x -= walk_speed
@@ -522,13 +601,23 @@ func get_arc_points(center, radius, angle_from, angle_to, trig_multiplier, nb_po
 	return points_arc
 
 func _on_Area2D_body_entered(body):
-	if body.name == 'Rabbit' and current_hover_tip == null:
+	if body.name == 'Rabbit' and current_hover_tip == null and !Globals.is_in_final_song():
 #		print('Creating hover tip!')
 		current_hover_tip = hover_tip.instance()
 		add_child(current_hover_tip)
 		current_hover_tip.set_box_position(Vector2(-35, -120))
 		is_rabbit_in_speak_zone = true
 		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
+	
+	if body.name == 'Rabbit' and current_play_hover_tip == null and Globals.has_lyre() and !Globals.is_in_final_song():
+		current_play_hover_tip = hover_tip.instance()
+		add_child(current_play_hover_tip)
+#		current_play_hover_tip.z_index = 1
+		current_play_hover_tip.set_action_text('Play')
+		current_play_hover_tip.set_text('W')
+		current_play_hover_tip.set_box_color('9b45e4')
+		current_play_hover_tip.set_text_offset_x(-3)
+		current_play_hover_tip.set_box_position(Vector2(-35, -170))
 
 func _on_Area2D_body_exited(body):
 	if body.name == 'Rabbit' and current_hover_tip != null:
@@ -536,3 +625,7 @@ func _on_Area2D_body_exited(body):
 		current_hover_tip.queue_free()
 		current_hover_tip = null
 		is_rabbit_in_speak_zone = false
+	if body.name == 'Rabbit' and current_play_hover_tip != null:
+#		print('Deleting hover tip!')
+		current_play_hover_tip.queue_free()
+		current_play_hover_tip = null

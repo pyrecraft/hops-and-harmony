@@ -7,6 +7,15 @@
 
 [node name="Moon" type="Light2D" parent="."]
 texture = ExtResource( 1 )
+color = Color( 0.780392, 0.74902, 0.498039, 1 )
+energy = 0.5
+mode = 2
+range_z_min = -5
+range_z_max = 5
+shadow_enabled = true
 script = ExtResource( 2 )
+state_night_energy = 0.5
+state_transition_duration = 0.5
+move = false
 
 [node name="Tween" type="Tween" parent="Moon"]

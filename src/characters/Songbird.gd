@@ -8,6 +8,7 @@ export var is_purple_songbird = false # Facing Right
 
 var start_pos = Vector2(0, 0)
 var current_hover_tip
+var current_play_hover_tip
 var is_rabbit_in_speak_zone = false
 
 # State Tree
@@ -19,7 +20,11 @@ var game_day_L = 1
 var game_hour_L = 1
 var game_state_L = Globals.GameState.PLAYING
 var game_progress_L = Globals.GameProgress.GAME_START
+var game_song_L = ''
 var has_coconut_L = false
+var correct_note_count_L
+var wrong_note_count_L
+var beat_count_L = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -34,6 +39,10 @@ func _ready():
 	game_state_L = Globals.get_state_value('game', 'state')
 	game_progress_L = Globals.get_state_value('game', 'progress')
 	has_coconut_L = Globals.get_state_value('game', 'has_coconut')
+	game_song_L = Globals.get_state_value('game', 'song')
+	correct_note_count_L = Globals.get_state_value('game', 'correct_note_count')
+	wrong_note_count_L = Globals.get_state_value('game', 'wrong_note_count')
+	beat_count_L = Globals.get_state_value('game', 'beat_count')
 	
 	$DialogueBox.connect("text_complete", self, "on_DialogueBox_text_complete")
 	$DialogueBox.clear_text()
@@ -70,11 +79,25 @@ func _on_store_changed(name, state):
 		songbird_purple_dict_L = store.get_state()['dialogue']['songbird_purple_dict']
 	if store.get_state()['game']['has_coconut'] != null:
 		has_coconut_L = store.get_state()['game']['has_coconut']
+	if store.get_state()['game']['song'] != null:
+		game_song_L = store.get_state()['game']['song']
+	if store.get_state()['game']['correct_note_count'] != null:
+		correct_note_count_L = store.get_state()['game']['correct_note_count']
+	if store.get_state()['game']['wrong_note_count'] != null:
+		wrong_note_count_L = store.get_state()['game']['wrong_note_count']
+	if store.get_state()['game']['beat_count'] != null:
+		beat_count_L = store.get_state()['game']['beat_count']
+		if beat_count_L == 0 and game_song_L != '': # New song started
+			$DialogueBox.clear_text()
 
 func handle_hover_tip(queue):
 	if !queue.empty() and current_hover_tip != null:
 		current_hover_tip.queue_free()
 		current_hover_tip = null
+	
+	if !queue.empty() and current_play_hover_tip != null:
+		current_play_hover_tip.queue_free()
+		current_play_hover_tip = null
 
 func handle_next_dialogue(queue):
 	if queue.empty():
@@ -105,6 +128,53 @@ func _input(event):
 		print('Attempted to speak with Rabbit!')
 		store.dispatch(actions.dialogue_set_npc_position(position))
 		store.dispatch(actions.dialogue_set_queue(get_next_dialogue()))
+	if Input.is_key_pressed(KEY_W) and can_start_playing():
+		print('Attempted to play for Dad!')
+		store.dispatch(actions.dialogue_set_queue(get_next_playing_dialogue()))
+#		store.dispatch(actions.game_set_song(name))
+
+
+func can_start_playing():
+	return is_rabbit_in_speak_zone and (current_play_hover_tip != null and current_play_hover_tip.visible)
+
+func get_next_playing_dialogue():
+	var next_dialogue = []
+	var original_game_progress = game_progress_L
+	match game_progress_L:
+		Globals.GameProgress.LYRE_OBTAINED:
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll try my best"))
+			next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Perfection!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "We'll appreciate anything"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Song', "Songbirds"))
+	return next_dialogue
+
+func get_score_validation_text():
+	var text_arr = []
+	var score_percent = float(correct_note_count_L) / float((correct_note_count_L + wrong_note_count_L))
+	print('Score percent was : ' + str(score_percent))
+	text_arr.push_back(Globals.create_dialogue_object('Songbirds', "!"))
+	text_arr.push_back(Globals.create_dialogue_object('Songbirds', "!"))
+	if score_percent > .90:
+		text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Pro!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks!"))
+	elif score_percent > .80:
+		text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Not bad!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks!"))
+	elif score_percent > .65:
+		text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Weak!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder!"))
+	else:
+		text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+		text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Poop!"))
+		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder!"))
+	return text_arr
 
 func get_next_dialogue():
 	var original_game_progress = game_progress_L
@@ -291,13 +361,23 @@ func draw_circle_arc_custom(center, radius, angle_from, angle_to, trig_multiplie
 	draw_polygon(points_arc, colors)
 
 func _on_Area2D_body_entered(body):
-	if body.name == 'Rabbit' and current_hover_tip == null:
+	if body.name == 'Rabbit' and current_hover_tip == null and !Globals.is_in_final_song():
 #		print('Creating hover tip!')
 		current_hover_tip = hover_tip.instance()
 		add_child(current_hover_tip)
-		current_hover_tip.set_box_position(Vector2(-140, -100))
+		current_hover_tip.set_box_position(Vector2(-140, -80))
 		is_rabbit_in_speak_zone = true
 		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
+	
+	if body.name == 'Rabbit' and current_play_hover_tip == null and Globals.has_lyre()  and !Globals.is_in_final_song():
+		current_play_hover_tip = hover_tip.instance()
+		add_child(current_play_hover_tip)
+		current_play_hover_tip.z_index = 1
+		current_play_hover_tip.set_action_text('Play')
+		current_play_hover_tip.set_text('W')
+		current_play_hover_tip.set_box_color('9b45e4')
+		current_play_hover_tip.set_text_offset_x(-3)
+		current_play_hover_tip.set_box_position(Vector2(-140, -130))
 
 func _on_Area2D_body_exited(body):
 	if body.name == 'Rabbit' and current_hover_tip != null:
@@ -305,3 +385,7 @@ func _on_Area2D_body_exited(body):
 		current_hover_tip.queue_free()
 		current_hover_tip = null
 		is_rabbit_in_speak_zone = false
+	if body.name == 'Rabbit' and current_play_hover_tip != null:
+#		print('Deleting hover tip!')
+		current_play_hover_tip.queue_free()
+		current_play_hover_tip = null

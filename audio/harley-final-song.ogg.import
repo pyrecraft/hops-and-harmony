@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/harley-final-song.ogg-60801d0bceab5ddaa63674ad3f7e79e7.oggstr"
+
+[deps]
+
+source_file="res://audio/harley-final-song.ogg"
+dest_files=[ "res://.import/harley-final-song.ogg-60801d0bceab5ddaa63674ad3f7e79e7.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

@@ -324,7 +324,7 @@ func draw_circle_arc_custom(center, radius, angle_from, angle_to, trig_multiplie
 	draw_polygon(points_arc, colors)
 
 func _on_Area2D_body_entered(body):
-	if body.name == 'Rabbit' and current_hover_tip == null:
+	if body.name == 'Rabbit' and current_hover_tip == null and !Globals.is_in_final_song():
 #		print('Creating hover tip!')
 		current_hover_tip = hover_tip.instance()
 		add_child(current_hover_tip)
@@ -332,7 +332,7 @@ func _on_Area2D_body_entered(body):
 		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
 
 func _on_Area2D_body_exited(body):
-	if body.name == 'Rabbit' and current_hover_tip != null:
+	if body.name == 'Rabbit' and current_hover_tip != null and !Globals.is_in_final_song():
 #		print('Deleting hover tip!')
 		current_hover_tip.queue_free()
 		current_hover_tip = null

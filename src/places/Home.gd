@@ -29,7 +29,7 @@ func _on_store_changed(name, state):
 
 func update_song_playing(prev_song, curr_song):
 	if curr_song == '' and prev_song != '':
-		$AudioStreamPlayer.stop()
+		$AudioStreamPlayer.play()
 	elif curr_song != '' and prev_song == '':
 		$AudioStreamPlayer.stop()
 

@@ -1,0 +1,231 @@
+[gd_scene load_steps=16 format=2]
+
+[ext_resource path="res://src/places/FinalScene.gd" type="Script" id=1]
+[ext_resource path="res://src/places/MiniIsland.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/things/Cloud.tscn" type="PackedScene" id=3]
+[ext_resource path="res://src/characters/Crab.tscn" type="PackedScene" id=4]
+[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=5]
+[ext_resource path="res://src/characters/Songbird.tscn" type="PackedScene" id=6]
+[ext_resource path="res://src/characters/Sheep.tscn" type="PackedScene" id=7]
+[ext_resource path="res://src/characters/Rabbit.tscn" type="PackedScene" id=8]
+[ext_resource path="res://src/characters/FatherRabbit.tscn" type="PackedScene" id=9]
+[ext_resource path="res://src/things/Supershape.tscn" type="PackedScene" id=10]
+[ext_resource path="res://src/lighting/DayNightCycle.tscn" type="PackedScene" id=11]
+[ext_resource path="res://src/things/IslandWaterSprite.tscn" type="PackedScene" id=12]
+[ext_resource path="res://src/things/Background.tscn" type="PackedScene" id=13]
+[ext_resource path="res://src/things/Valley.tscn" type="PackedScene" id=14]
+[ext_resource path="res://src/things/PalmTree.tscn" type="PackedScene" id=15]
+
+[node name="FinalScene" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="MiniIsland" parent="." instance=ExtResource( 2 )]
+position = Vector2( -54.2855, 543.39 )
+
+[node name="ParallaxLayer" parent="MiniIsland/ParallaxBackground" index="0"]
+position = Vector2( 771.122, 549.892 )
+
+[node name="SpecialPalmTree" parent="MiniIsland" index="2"]
+position = Vector2( -721.443, -420.846 )
+
+[node name="Clouds" type="Node" parent="."]
+editor/display_folded = true
+
+[node name="Cloud" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( 424.087, 63.2411 )
+
+[node name="Cloud8" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( -52.7365, 63.2411 )
+
+[node name="Cloud9" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( -751.81, 47.4428 )
+
+[node name="Cloud5" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( 2662.79, 63.2411 )
+
+[node name="Cloud6" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( 3352.66, 46.3325 )
+
+[node name="Cloud7" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( 4045.92, 46.3325 )
+
+[node name="Cloud2" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( 1032.16, 18.6005 )
+
+[node name="Cloud3" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( 1558.73, 37.2007 )
+
+[node name="Cloud4" parent="Clouds" instance=ExtResource( 3 )]
+position = Vector2( 2090.38, 18.6003 )
+
+[node name="Characters" type="Node" parent="."]
+
+[node name="Crab" parent="Characters" instance=ExtResource( 4 )]
+position = Vector2( -374.437, 438.402 )
+
+[node name="Turtle" parent="Characters" instance=ExtResource( 5 )]
+position = Vector2( -208.991, 451.579 )
+
+[node name="SongbirdGreen" parent="Characters" instance=ExtResource( 6 )]
+position = Vector2( -149.172, 245.442 )
+
+[node name="SongbirdPurple" parent="Characters" instance=ExtResource( 6 )]
+position = Vector2( 92.8182, 237.06 )
+color_primary = Color( 0.898039, 0.690196, 0.917647, 1 )
+is_purple_songbird = true
+
+[node name="Sheep" parent="Characters" instance=ExtResource( 7 )]
+position = Vector2( 324.621, 409.271 )
+
+[node name="Rabbit" parent="Characters" instance=ExtResource( 8 )]
+position = Vector2( -6.24445, 340.712 )
+
+[node name="FatherRabbit" parent="Characters" instance=ExtResource( 9 )]
+position = Vector2( 184.534, 425.411 )
+
+[node name="Supershapes" type="Node" parent="."]
+
+[node name="Starfish" parent="Supershapes" instance=ExtResource( 10 )]
+position = Vector2( -380.452, 487.282 )
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 20.0
+supershape_np = 100
+n1 = 0.1
+
+[node name="Starfish6" parent="Supershapes" instance=ExtResource( 10 )]
+position = Vector2( 599.186, 494.016 )
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 20.0
+supershape_np = 100
+n1 = 0.1
+
+[node name="Starfish5" parent="Supershapes" instance=ExtResource( 10 )]
+position = Vector2( -455.904, 494.141 )
+rotation = -1.40674
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 18.0
+supershape_np = 25
+n1 = 0.08
+
+[node name="Starfish2" parent="Supershapes" instance=ExtResource( 10 )]
+position = Vector2( -291.089, 483.042 )
+rotation = -0.563741
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 18.0
+supershape_np = 100
+n1 = 0.08
+n2 = 1.8
+n3 = 1.8
+
+[node name="Starfish3" parent="Supershapes" instance=ExtResource( 10 )]
+position = Vector2( 513.405, 483.042 )
+rotation = -1.68948
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 3.0
+supershape_np = 150
+n1 = 0.12
+n2 = 2.5
+n3 = 2.5
+
+[node name="Starfish4" parent="Supershapes" instance=ExtResource( 10 )]
+position = Vector2( 677.266, 540.284 )
+rotation = 0.280998
+supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
+supershape_scale = 3.0
+supershape_np = 150
+n1 = 0.1
+n2 = 2.6
+n3 = 2.6
+
+[node name="DayNightCycle" parent="." instance=ExtResource( 11 )]
+position = Vector2( -526.914, 0 )
+
+[node name="IslandWaterSprite" parent="." instance=ExtResource( 12 )]
+position = Vector2( -557.021, 334.633 )
+
+[node name="BackgroundCanvas" type="CanvasLayer" parent="."]
+layer = -2
+
+[node name="Background" parent="BackgroundCanvas" instance=ExtResource( 13 )]
+position = Vector2( -557.021, 0 )
+z_index = -2
+z_as_relative = false
+
+[node name="CloudTimer" type="Timer" parent="."]
+wait_time = 20.0
+autostart = true
+
+[node name="ParallaxBackground2" type="ParallaxBackground" parent="."]
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground2"]
+position = Vector2( -557.021, 0 )
+motion_scale = Vector2( 0.9, 1 )
+
+[node name="Valley" parent="ParallaxBackground2/ParallaxLayer" instance=ExtResource( 14 )]
+visible = false
+position = Vector2( 818.772, 395.662 )
+valley_color = Color( 0.760784, 0.733333, 0.741176, 0.254902 )
+valley_trig = 0.8
+valley_radius = 225
+valley_nb_points = 4
+
+[node name="Valley2" parent="ParallaxBackground2/ParallaxLayer" instance=ExtResource( 14 )]
+visible = false
+position = Vector2( 1628.38, 395.662 )
+valley_color = Color( 0.760784, 0.733333, 0.741176, 0.329412 )
+valley_trig = 1.0
+valley_radius = 350
+valley_nb_points = 4
+y_offset = 75
+
+[node name="Valley5" parent="ParallaxBackground2/ParallaxLayer" instance=ExtResource( 14 )]
+visible = false
+position = Vector2( 1939.86, 395.662 )
+valley_color = Color( 0.760784, 0.733333, 0.741176, 0.254902 )
+valley_trig = 0.8
+valley_radius = 200
+valley_nb_points = 4
+y_offset = 75
+
+[node name="Valley3" parent="ParallaxBackground2/ParallaxLayer" instance=ExtResource( 14 )]
+visible = false
+position = Vector2( 2488.83, 395.662 )
+valley_color = Color( 0.760784, 0.733333, 0.741176, 0.254902 )
+valley_trig = 0.8
+valley_radius = 300
+valley_nb_points = 4
+
+[node name="Valley4" parent="ParallaxBackground2/ParallaxLayer" instance=ExtResource( 14 )]
+visible = false
+position = Vector2( 4296.88, 395.662 )
+valley_color = Color( 0.0862745, 0.0823529, 0.0823529, 0.521569 )
+valley_trig = 1.3
+valley_radius = 300
+valley_nb_points = 30
+y_offset = 200
+
+[node name="Trees" type="Node" parent="."]
+
+[node name="PalmTree" parent="Trees" instance=ExtResource( 15 )]
+position = Vector2( 614.369, 288.061 )
+
+[node name="PalmTree2" parent="Trees" instance=ExtResource( 15 )]
+position = Vector2( -132.362, 271.667 )
+tree_height = 220
+is_tree_swaying = false
+
+[node name="PalmTree3" parent="Trees" instance=ExtResource( 15 )]
+position = Vector2( 105.558, 262.543 )
+tree_height = 230
+is_tree_swaying = false
+
+[node name="PalmTree4" parent="Trees" instance=ExtResource( 15 )]
+position = Vector2( 2867.49, 259.749 )
+tree_height = 230
+
+[node name="DelayTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+[connection signal="timeout" from="DelayTimer" to="." method="_on_DelayTimer_timeout"]
+
+[editable path="MiniIsland"]

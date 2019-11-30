@@ -5,5 +5,5 @@ antialiased = false
 font_path = "res://fonts/mini-wakuwaku-maru.otf"
 
 [resource]
-size = 25
+size = 70
 font_data = SubResource( 1 )

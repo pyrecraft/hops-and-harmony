@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://src/characters/Rabbit.gd" type="Script" id=1]
 [ext_resource path="res://src/things/DialogueBox.tscn" type="PackedScene" id=2]
 [ext_resource path="res://src/minigames/PolyphonyAudioManager.tscn" type="PackedScene" id=3]
 [ext_resource path="res://audio/incidental-music.ogg" type="AudioStream" id=4]
+[ext_resource path="res://audio/waiting.ogg" type="AudioStream" id=5]
+[ext_resource path="res://audio/harley-final-song.ogg" type="AudioStream" id=6]
 
 [sub_resource type="CircleShape2D" id=1]
 radius = 30.4974
@@ -21,6 +23,14 @@ shape = SubResource( 1 )
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
 
+[node name="BlackRect" type="ColorRect" parent="Camera2D"]
+visible = false
+margin_left = -2391.0
+margin_top = -1777.0
+margin_right = 3266.0
+margin_bottom = 2358.0
+color = Color( 0, 0, 0, 1 )
+
 [node name="DialogueBox" parent="." instance=ExtResource( 2 )]
 position = Vector2( 0, -129.233 )
 
@@ -31,5 +41,18 @@ one_shot = true
 
 [node name="HomeAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )
+
+[node name="BeatTimer" type="Timer" parent="."]
+
+[node name="SongbirdsAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+
+[node name="FinalSongAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 6 )
+
+[node name="OutroTimer" type="Timer" parent="."]
+one_shot = true
 [connection signal="timeout" from="WalkSmokeTimer" to="." method="_on_WalkSmokeTimer_timeout"]
 [connection signal="timeout" from="SongFinishTimer" to="." method="_on_SongFinishTimer_timeout"]
+[connection signal="timeout" from="BeatTimer" to="." method="_on_BeatTimer_timeout"]
+[connection signal="timeout" from="OutroTimer" to="." method="_on_OutroTimer_timeout"]

@@ -40,11 +40,16 @@ var beat_count_L = 0
 var lyre_draw_points = PoolVector2Array()
 var correct_note_count_L
 var wrong_note_count_L
+var is_preloading_initial_beats = true
 
 var last_island = Island.MAIN
 var beats_per_second = 0
 var is_beat_count_set = false
 var note_tracker_inst
+
+var is_fading_in = true
+var fade_rate = 1.0
+var is_final_song_done = false
 
 enum Island {
 	MAIN,
@@ -70,6 +75,8 @@ func _ready():
 	lyre_draw_points = get_lyre_points(1.0)
 	correct_note_count_L = Globals.get_state_value('game', 'correct_note_count')
 	wrong_note_count_L = Globals.get_state_value('game', 'wrong_note_count')
+	$Camera2D/BlackRect.show()
+	fade_rate = .5 if Globals.is_in_final_song() else 1.0
 
 func on_DialogueBox_text_complete():
 	store.dispatch(actions.dialogue_pop_queue())
@@ -104,6 +111,7 @@ func _on_store_changed(name, state):
 		game_song_L = store.get_state()['game']['song']
 	if store.get_state()['game']['beat_count'] != null:
 		beat_count_L = store.get_state()['game']['beat_count']
+		check_for_song_start(beat_count_L)
 	if store.get_state()['dialogue']['queue'] != null:
 		dialogue_queue_L = store.get_state()['dialogue']['queue']
 		handle_next_dialogue(dialogue_queue_L)
@@ -111,6 +119,39 @@ func _on_store_changed(name, state):
 		correct_note_count_L = store.get_state()['game']['correct_note_count']
 	if store.get_state()['game']['wrong_note_count'] != null:
 		wrong_note_count_L = store.get_state()['game']['wrong_note_count']
+
+func check_for_song_start(beat_count):
+	match game_song_L:
+		'FatherRabbit':
+			if is_preloading_initial_beats:
+				if beat_count < 4 and $BeatTimer.is_stopped():
+					$BeatTimer.wait_time = Globals.get_beats_per_second(game_song_L)
+					$BeatTimer.start()
+				elif beat_count == 4:
+					$BeatTimer.stop()
+					$HomeAudio.play(0)
+					is_preloading_initial_beats = false
+		'Songbirds':
+			print('Songbird beat count: ' + str(beat_count))
+			if is_preloading_initial_beats:
+				if beat_count < 4 and $BeatTimer.is_stopped():
+					$BeatTimer.wait_time = Globals.get_beats_per_second(game_song_L)
+					$BeatTimer.start()
+				elif beat_count == 4:
+					$BeatTimer.stop()
+					$SongbirdsAudio.play(0)
+					is_preloading_initial_beats = false
+		'FinalSong':
+			print('FinalSong beat count: ' + str(beat_count))
+			if is_preloading_initial_beats and !is_final_song_done:
+				if beat_count < 4 and $BeatTimer.is_stopped():
+					$BeatTimer.wait_time = Globals.get_beats_per_second(game_song_L)
+					$BeatTimer.start()
+				elif beat_count == 4:
+					$BeatTimer.stop()
+					$FinalSongAudio.play(0)
+					is_preloading_initial_beats = false
+					
 
 func start_coconut_minigame():
 	var should_skip_minigame = false # Can use DEBUG_MODE here
@@ -167,13 +208,18 @@ func handle_next_dialogue(queue):
 			
 			if !is_beat_count_set:
 				is_beat_count_set = true
-				store.dispatch(actions.game_set_beat_count(0))
+				match song_name:
+					'FatherRabbit':
+						store.dispatch(actions.game_set_beat_count(0))
+					'Songbirds':
+						store.dispatch(actions.game_set_beat_count(4))
+					'FinalSong':
+						store.dispatch(actions.game_set_beat_count(0))
 				store.dispatch(actions.game_set_correct_note_count(0))
 				store.dispatch(actions.game_set_wrong_note_count(0))
-			$HomeAudio.play()
+				is_preloading_initial_beats = true
 			
 			if note_tracker_inst == null:
-				print('Instancing note tracker')
 				note_tracker_inst = note_tracker.instance()
 				note_tracker_inst.position = Vector2(-167, -250)
 				add_child(note_tracker_inst)
@@ -181,7 +227,7 @@ func handle_next_dialogue(queue):
 	else:
 		var dialogue_text = next_dialogue_obj['text']
 		if dialogue_text != $DialogueBox.get_text(): # NOTE: this means you cannot say the same text twice
-			print('Setting next dialogue for Rabbit: ' + dialogue_text)
+#			print('Setting next dialogue for Rabbit: ' + dialogue_text)
 			$DialogueBox.set_text(dialogue_text)
 
 func _input(event):
@@ -225,33 +271,70 @@ func _process(delta):
 	update()
 	if current_rabbit_state == RabbitState.PLAYING_LYRE:
 		handle_beat_management()
+	handle_fading_logic(delta)
+
+func handle_fading_logic(delta):
+	if is_fading_in:
+		if $Camera2D/BlackRect.color.a > 0:
+			$Camera2D/BlackRect.color.a -= delta * fade_rate
+	else: # Fading out
+		if $Camera2D/BlackRect.color.a < 1.0:
+			$Camera2D/BlackRect.color.a += delta * fade_rate
 
 func get_playback_position(song):
 	match song:
 		'FatherRabbit':
 			return $HomeAudio.get_playback_position()
+		'Songbirds':
+			return $SongbirdsAudio.get_playback_position()
+		'FinalSong':
+			return $FinalSongAudio.get_playback_position()
 	
 	return 0
 
 func handle_beat_management():
 	var playback_position = get_playback_position(game_song_L)
-	if playback_position > beats_per_second * beat_count_L:
-		beat_count_L += 1
-		store.dispatch(actions.game_set_beat_count(beat_count_L))
-		print(beat_count_L)
+	if !is_preloading_initial_beats:
+		if playback_position > beats_per_second * (beat_count_L - 3):
+			print('Beat count: ' + str(beat_count_L))
+#			print('Playback Position: ' + str(playback_position))
+			beat_count_L += 1
+			store.dispatch(actions.game_set_beat_count(beat_count_L))
+			print(beat_count_L)
 	match game_song_L:
 		'FatherRabbit':
-			if beat_count_L >= 48 and $SongFinishTimer.is_stopped():
-				print('starting timer!')
+			if beat_count_L >= 51 and $SongFinishTimer.is_stopped():
 				$SongFinishTimer.start()
+				is_preloading_initial_beats = true
+		'Songbirds':
+			if beat_count_L >= 162 and $SongFinishTimer.is_stopped():
+				$SongFinishTimer.start()
+				is_preloading_initial_beats = true
+		'FinalSong':
+#			var num_notes = 291
+			var num_notes = 50
+			if beat_count_L >= num_notes - 32:
+				note_tracker_inst.hide()
+				fade_rate = 0.0775
+				is_fading_in = false # fade out
+			if beat_count_L >= num_notes and $SongFinishTimer.is_stopped():
+				$SongFinishTimer.start()
+				is_preloading_initial_beats = true
+				is_final_song_done = true
 
 func song_finished():
-	store.dispatch(actions.dialogue_set_queue(get_score_validation_text()))
-	print('Ending FatherRabbit song')
+	var next_text = get_score_validation_text()
+	if !next_text.empty():
+		store.dispatch(actions.dialogue_set_queue(next_text))
+	$HomeAudio.stop()
+	$SongbirdsAudio.stop()
+	$FinalSongAudio.stop()
+	print('Ending song')
 	is_beat_count_set = false
 	store.dispatch(actions.game_set_song(''))
 	store.dispatch(actions.game_set_state(Globals.GameState.PLAYING))
-	store.dispatch(actions.game_set_beat_count(0))
+	if !Globals.is_in_final_song():
+		store.dispatch(actions.game_set_beat_count(0))
 	current_rabbit_state = RabbitState.TALKING
 	store.dispatch(actions.dialogue_pop_queue())
 	if dialogue_queue_L.empty():
@@ -265,23 +348,64 @@ func get_score_validation_text():
 	var text_arr = []
 	var score_percent = float(correct_note_count_L) / float((correct_note_count_L + wrong_note_count_L))
 	print('Score percent was : ' + str(score_percent))
-	text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', ".."))
-	if score_percent > .90:
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Fantastic!"))
-		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
-	elif score_percent > .80:
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey not too shabby!"))
-		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
-	elif score_percent > .65:
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You missed a few notes but you'll get there"))
-		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
-	else:
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
-		text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You definitely have some room for improvement"))
-		text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder"))
+	match game_song_L:
+		'FatherRabbit':
+			text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', ".."))
+			if score_percent > .90:
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Fantastic!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+			elif score_percent > .80:
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "Hey not too shabby!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+			elif score_percent > .65:
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You missed a few notes but you'll get there"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks Dad!"))
+			else:
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('FatherRabbit', "You definitely have some room for improvement"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder"))
+		'Songbirds':
+			text_arr.push_back(Globals.create_dialogue_object('Songbirds', "!"))
+			text_arr.push_back(Globals.create_dialogue_object('Songbirds', "!"))
+			if score_percent > .90:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Pro!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks!"))
+			elif score_percent > .80:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Not bad!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks!"))
+			elif score_percent > .65:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Weak!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder!"))
+			else:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Poop!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder!"))
+		'FinalSong':
+			return [] # TODO : Perhaps add text at the very, very end
+			text_arr.push_back(Globals.create_dialogue_object('Songbirds', "!"))
+			text_arr.push_back(Globals.create_dialogue_object('Songbirds', "!"))
+			if score_percent > .90:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Pro!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks!"))
+			elif score_percent > .80:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Not bad!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "Thanks!"))
+			elif score_percent > .65:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Weak!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder!"))
+			else:
+				text_arr.push_back(Globals.create_dialogue_object('SongBirdPurple', "You got " + str(correct_note_count_L) + ' correct out of ' + str(correct_note_count_L + wrong_note_count_L)))
+				text_arr.push_back(Globals.create_dialogue_object('SongbirdGreen', "Poop!"))
+				text_arr.push_back(Globals.create_dialogue_object('Rabbit', "I'll try harder!"))
 	return text_arr
 
 func _physics_process(delta):
@@ -357,7 +481,7 @@ func set_velocities(delta):
 
 func is_walking_allowed():
 	return current_rabbit_state != RabbitState.TALKING and current_rabbit_state != RabbitState.PLAYING_LYRE \
-		and game_state_L != Globals.GameState.MINIGAME
+		and game_state_L != Globals.GameState.MINIGAME and !Globals.is_in_final_song()
 
 func is_walking_left():
 	return Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A)
@@ -582,3 +706,13 @@ func spawn_landing_smoke():
 
 func _on_SongFinishTimer_timeout():
 	song_finished()
+	if Globals.is_in_final_song():
+		is_fading_in = false # Fade out
+		$OutroTimer.start()
+
+func _on_BeatTimer_timeout():
+	print('Beat count now ' + str(beat_count_L + 1))
+	store.dispatch(actions.game_set_beat_count(beat_count_L + 1))
+
+func _on_OutroTimer_timeout():
+	get_tree().change_scene("res://src/places/Outro.tscn")

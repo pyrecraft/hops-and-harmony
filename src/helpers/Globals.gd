@@ -34,6 +34,9 @@ func create_dialogue_object(speaker, text):
 		'text': text
 	}
 
+func is_in_final_song():
+	return get_state_value('game', 'progress') == GameProgress.FINAL_SONG
+
 static func has_lyre():
 	return get_state_value('game', 'progress') >= GameProgress.LYRE_OBTAINED
 
@@ -52,6 +55,10 @@ static func get_beats_per_second(song):
 	match song:
 		'FatherRabbit':
 			return 0.6316
+		'Songbirds':
+			return 0.5455
+		'FinalSong':
+			return (0.75 / 2.0)
 		_:
 			return 0.5455
 	return 0

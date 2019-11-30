@@ -9,6 +9,9 @@ func is_success_or_failure():
 func is_failure():
 	return $ColorRect.modulate == Color("883932")
 
+func is_success():
+	return $ColorRect.modulate == Color("55a049")
+
 func get_num_text():
 	return $RichTextLabel.text
 

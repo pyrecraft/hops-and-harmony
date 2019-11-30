@@ -28,7 +28,7 @@ var radius_y = radius_x / 2
 
 var path = Curve2D.new()
 
-var speed
+export var speed = 10.0
 var hour_step
 var midnight_step
 var baked_points_pos
@@ -54,7 +54,7 @@ func _ready():
 
 	path.set_bake_interval(1)
 
-	speed = (path.get_baked_points().size() / Globals.day_night.day_duration) * 60 # Match speed with day duration
+#	speed = (path.get_baked_points().size() / Globals.day_night.day_duration) * 60 # Match speed with day duration
 
 	midnight_step = ((path.get_baked_points().size()) * 18 / 24)
 	hour_step = path.get_baked_points().size() / 24

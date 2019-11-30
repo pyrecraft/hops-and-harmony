@@ -37,7 +37,8 @@ enum cycle_state { NIGHT, DAWN, DAY, DUSK }
 func _ready():
 	store.subscribe(self, "_on_store_changed")
 	game_progress_L = Globals.get_state_value('game', 'progress')
-	transition_duration = (((day_duration / 24) * state_transition_duration) / 60) * 250
+#	transition_duration = (((day_duration / 24) * state_transition_duration) / 60) * 250
+	transition_duration = .01
 	
 	handle_setting_cycle(game_progress_L)
 	if not on:
@@ -69,9 +70,9 @@ func _ready():
 #		color = color_dusk
 
 func handle_setting_cycle(game_progress):
-	if game_progress <= Globals.GameProgress.WENT_OUTSIDE:
+	if game_progress <= Globals.GameProgress.TALK_TO_SHEEPA:
 		cycle_test(cycle_state.DAWN)
-	elif game_progress <= Globals.GameProgress.TALKED_TO_SHEEPA:
+	elif game_progress <= Globals.GameProgress.COCONUT_COMPLETED:
 		cycle_test(cycle_state.DAY)
 	elif game_progress <= Globals.GameProgress.LYRE_OBTAINED:
 		cycle_test(cycle_state.DUSK)
@@ -83,6 +84,7 @@ func _on_store_changed(name, state):
 		return
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
+		transition_duration = 30
 		handle_setting_cycle(game_progress_L)
 
 func _physics_process(delta):

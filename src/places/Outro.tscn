@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/places/Outro.gd" type="Script" id=1]
+[ext_resource path="res://fonts/WakuWakuFont.tres" type="DynamicFont" id=2]
+
+[node name="Outro" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_left = -353.174
+margin_top = -252.626
+margin_right = 372.826
+margin_bottom = 325.374
+custom_fonts/normal_font = ExtResource( 2 )
+bbcode_enabled = true
+bbcode_text = "    Created by
+   [color=#6fb98f]Jon Topielski[/color]
+        aka
+     [color=#f09595]PyreCraft[/color]
+        for
+[color=#fcf5b0]   Github Game   	 Off 2019[/color]"
+text = "    Created by
+   Jon Topielski
+        aka
+     PyreCraft
+        for
+   Github Game   	 Off 2019"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+autoplay = true

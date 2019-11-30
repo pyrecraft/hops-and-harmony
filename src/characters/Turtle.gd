@@ -22,6 +22,9 @@ var current_scale = 1
 var scale_polarity = 1 # +1 or -1
 var center_pos = Vector2(0, -10)
 
+var game_song_L = ''
+var game_progress_L = 0
+
 var current_state = State.IDLE
 
 enum State {
@@ -42,13 +45,35 @@ var leg_current_scale_list = [0, 0, 0, 0]
 var leg_scale_polarity_list = [1, -1, -1, 1]
 
 func _ready():
-	pass
+	store.subscribe(self, "_on_store_changed")
+	game_song_L = Globals.get_state_value('game', 'song')
+	game_progress_L = Globals.get_state_value('game', 'progress')
+	check_for_final_song_state(game_progress_L)
+
+func check_for_final_song_state(game_progress):
+	if game_progress == Globals.GameProgress.FINAL_SONG:
+		walk_speed = 0
+		is_moving_left = false
 
 func _process(delta):
 	handle_states(delta)
 	for i in range(0, 4):
 		handle_leg_states(delta, i)
 	update()
+
+func _on_store_changed(name, state):
+	if store.get_state() == null:
+		return
+	if store.get_state()['game']['song'] != null:
+		var previous_song = game_song_L
+		game_song_L = store.get_state()['game']['song']
+		if previous_song == '' and game_song_L != '':
+			go_into_shell()
+		elif game_song_L == '' and previous_song != '':
+			get_out_of_shell()
+	if store.get_state()['game']['progress'] != null:
+		game_progress_L = store.get_state()['game']['progress']
+		check_for_final_song_state(game_progress_L)
 
 func _physics_process(delta):
 	set_velocities(delta)
@@ -113,13 +138,14 @@ func handle_states(delta):
 			pass
 
 func handle_leg_states(delta, index):
-	leg_current_scale_list[index] += leg_scale_rate_list[index] * delta * leg_scale_polarity_list[index]
-	if leg_current_scale_list[index] < -1.25: # Forward
-		leg_scale_polarity_list[index] = 1
-		leg_scale_rate_list[index] = 2
-	elif leg_current_scale_list[index] > 1.25: # Backwards
-		leg_scale_polarity_list[index] = -1
-		leg_scale_rate_list[index] = 2
+	if game_progress_L != Globals.GameProgress.FINAL_SONG:
+		leg_current_scale_list[index] += leg_scale_rate_list[index] * delta * leg_scale_polarity_list[index]
+		if leg_current_scale_list[index] < -1.25: # Forward
+			leg_scale_polarity_list[index] = 1
+			leg_scale_rate_list[index] = 2
+		elif leg_current_scale_list[index] > 1.25: # Backwards
+			leg_scale_polarity_list[index] = -1
+			leg_scale_rate_list[index] = 2
 
 func set_velocities(delta):
 	velocity.x = 0

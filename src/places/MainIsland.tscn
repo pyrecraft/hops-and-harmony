@@ -79,6 +79,7 @@ radius = 56.5739
 [node name="MainIsland" type="Node2D"]
 rotation = 0.000323031
 script = ExtResource( 1 )
+spawn_main_island = false
 
 [node name="Burrow" parent="." instance=ExtResource( 2 )]
 position = Vector2( 876.155, 469.369 )
@@ -213,8 +214,9 @@ position = Vector2( 2768.41, 461.291 )
 shape = SubResource( 6 )
 
 [node name="Rock" parent="Rocks" instance=ExtResource( 6 )]
-position = Vector2( 4314, 590.565 )
+position = Vector2( 4314, 547.982 )
 z_index = -1
+position_multiplier = 30.0
 
 [node name="CollisionShape2D" parent="Rocks/Rock" index="0"]
 position = Vector2( 0, 9.8988 )
