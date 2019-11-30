@@ -95,6 +95,8 @@ text = "
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 2 )
+volume_db = 0.5
+pitch_scale = 0.75
 autoplay = true
 
 [node name="Timer" type="Timer" parent="."]

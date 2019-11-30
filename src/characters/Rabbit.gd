@@ -50,6 +50,7 @@ var note_tracker_inst
 var is_fading_in = true
 var fade_rate = 1.0
 var is_final_song_done = false
+var has_jumped = false
 
 enum Island {
 	MAIN,
@@ -106,7 +107,10 @@ func _on_store_changed(name, state):
 	if store.get_state()['game']['progress'] != null:
 		game_progress_L = store.get_state()['game']['progress']
 	if store.get_state()['game']['has_coconut'] != null:
+		var prev_has_cocohut = game_has_coconut_L
 		game_has_coconut_L = store.get_state()['game']['has_coconut']
+		if !prev_has_cocohut and game_has_coconut_L:
+			$PickupCoconutSound.play()
 	if store.get_state()['game']['song'] != null:
 		game_song_L = store.get_state()['game']['song']
 	if store.get_state()['game']['beat_count'] != null:
@@ -420,18 +424,25 @@ func _physics_process(delta):
 		last_island = Island.MAIN
 
 func check_for_water_death():
+	var has_fallen_into_water = false
 	if position.x < 200 and position.y > 850: # Left side death
 		store.dispatch(actions.game_set_has_coconut(false))
 		position = Vector2(150, 350)
+		has_fallen_into_water = true
 	elif position.x > 8000 and position.y > 850: # Right side death
 		store.dispatch(actions.game_set_has_coconut(false))
 		position = Vector2(7950, 350)
+		has_fallen_into_water = true
 	if position.x > 3000 and position.y > 850:
 		store.dispatch(actions.game_set_has_coconut(false))		
 		if last_island == Island.MINI:
 			position = Vector2(6550, 350)
+			has_fallen_into_water = true
 		else:
 			position = Vector2(3850, 350)
+			has_fallen_into_water = true
+	if has_fallen_into_water:
+		$FallWaterSound.play()
 
 func handle_states(delta):
 	current_scale += scale_rate * delta * scale_polarity
@@ -465,6 +476,9 @@ func handle_states(delta):
 				current_scale = .85
 				scale_polarity = 1
 				scale_rate = .3
+				if has_jumped:
+					has_jumped = false
+					$LandingSound.play()
 		RabbitState.TALKING:
 			pass
 
@@ -477,6 +491,8 @@ func set_velocities(delta):
 		if is_walking_left():
 			velocity.x -= walk_speed
 		if Input.is_key_pressed(KEY_SPACE) and is_on_floor():
+			$JumpSound.play()
+			has_jumped = true
 			velocity.y = jump_speed
 
 	velocity = move_and_slide(velocity, Vector2(0, -1))

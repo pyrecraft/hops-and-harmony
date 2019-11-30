@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/minigame-success.wav-570a46842115b0b1e7e0cad455efb5fe.sample"
+
+[deps]
+
+source_file="res://audio/sfx/minigame-success.wav"
+dest_files=[ "res://.import/minigame-success.wav-570a46842115b0b1e7e0cad455efb5fe.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=true
+edit/normalize=true
+edit/loop=false
+compress/mode=0

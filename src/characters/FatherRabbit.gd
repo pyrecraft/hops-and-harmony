@@ -367,6 +367,7 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I worry about you sometimes"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "You can play a practice song with me if you like"))
 					store.dispatch(actions.game_set_progress(Globals.GameProgress.LYRE_OBTAINED))
+					$LyreBuiltSound.play()
 				_:
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How do I play the lyre again?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Use numbers 1-8 on your keyboard"))

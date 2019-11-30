@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/bunny-jump.wav-b5a1f81e2d314b59deb3a9421cdb2c9a.sample"
+
+[deps]
+
+source_file="res://audio/sfx/bunny-jump.wav"
+dest_files=[ "res://.import/bunny-jump.wav-b5a1f81e2d314b59deb3a9421cdb2c9a.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=true
+edit/normalize=true
+edit/loop=false
+compress/mode=0

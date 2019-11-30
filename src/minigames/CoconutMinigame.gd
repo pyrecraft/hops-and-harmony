@@ -179,6 +179,7 @@ func get_array_with_randoms(num_randoms, arr_length):
 	return result
 
 func start_next_round(next_round_array):
+	$RowStartSound.play()
 	for i in range(0, drop_points.size()):
 		if next_round_array[i] == 1: # Coconut
 			var next_coconut = coconut.instance()
@@ -212,6 +213,7 @@ func _on_RoundTimer_timeout():
 	update_object_countdown()
 	if current_round == num_rounds + 2 and !$FailureText.visible and state != State.FAILURE: # Finished rounds
 		set_state(State.SUCCESS)
+		$MinigameSuccessSound.play()
 		$SuccessText.show()
 		$RoundTimer.stop()
 		$ExitDelayTimer.start()

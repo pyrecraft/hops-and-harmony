@@ -14,15 +14,15 @@ func _ready():
 	], [
 		{'name': '_on_store_changed', 'instance': self}
 	])
-	if play_final_scene:
-		$MainIsland.queue_free()
-		$Home.queue_free()
-	elif start_on_home:
-		$MainIsland.queue_free()
-		$FinalScene.queue_free()
-	else:
-		$Home.queue_free()
-		$FinalScene.queue_free()
+#	if play_final_scene:
+#		$MainIsland.queue_free()
+#		$Home.queue_free()
+#	elif start_on_home:
+#		$MainIsland.queue_free()
+#		$FinalScene.queue_free()
+#	else:
+#		$Home.queue_free()
+#		$FinalScene.queue_free()
 
 func _on_store_changed(name, state):
 #	print(state)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://src/characters/Rabbit.gd" type="Script" id=1]
 [ext_resource path="res://src/things/DialogueBox.tscn" type="PackedScene" id=2]
@@ -6,6 +6,10 @@
 [ext_resource path="res://audio/incidental-music.ogg" type="AudioStream" id=4]
 [ext_resource path="res://audio/waiting.ogg" type="AudioStream" id=5]
 [ext_resource path="res://audio/harley-final-song.ogg" type="AudioStream" id=6]
+[ext_resource path="res://audio/sfx/bunny-jump.wav" type="AudioStream" id=7]
+[ext_resource path="res://audio/sfx/ground-landing.wav" type="AudioStream" id=8]
+[ext_resource path="res://audio/sfx/fall-water.wav" type="AudioStream" id=9]
+[ext_resource path="res://audio/sfx/pickup-coconut.wav" type="AudioStream" id=10]
 
 [sub_resource type="CircleShape2D" id=1]
 radius = 30.4974
@@ -52,6 +56,25 @@ stream = ExtResource( 6 )
 
 [node name="OutroTimer" type="Timer" parent="."]
 one_shot = true
+
+[node name="JumpSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 7 )
+volume_db = -30.0
+pitch_scale = 0.7
+
+[node name="LandingSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 8 )
+volume_db = -35.0
+pitch_scale = 0.5
+
+[node name="FallWaterSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 9 )
+volume_db = -35.0
+pitch_scale = 0.75
+
+[node name="PickupCoconutSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 10 )
+volume_db = -30.0
 [connection signal="timeout" from="WalkSmokeTimer" to="." method="_on_WalkSmokeTimer_timeout"]
 [connection signal="timeout" from="SongFinishTimer" to="." method="_on_SongFinishTimer_timeout"]
 [connection signal="timeout" from="BeatTimer" to="." method="_on_BeatTimer_timeout"]

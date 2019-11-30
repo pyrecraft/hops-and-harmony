@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/pickup-coconut.wav-d87dd955cf7af2a0f8204eaaa22a3cf7.sample"
+
+[deps]
+
+source_file="res://audio/sfx/pickup-coconut.wav"
+dest_files=[ "res://.import/pickup-coconut.wav-d87dd955cf7af2a0f8204eaaa22a3cf7.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=true
+edit/normalize=true
+edit/loop=false
+compress/mode=0

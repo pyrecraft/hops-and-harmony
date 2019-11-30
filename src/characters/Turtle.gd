@@ -79,6 +79,7 @@ func _physics_process(delta):
 	set_velocities(delta)
 #	clamp_pos_to_screen()
 	if is_colliding_with_rabbit() and !is_in_shell:
+		$ShellSound.play()
 		go_into_shell()
 		$ShellTimer.start()
 	check_for_water_death()

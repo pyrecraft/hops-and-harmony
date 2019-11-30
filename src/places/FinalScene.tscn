@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://src/places/FinalScene.gd" type="Script" id=1]
 [ext_resource path="res://src/places/MiniIsland.tscn" type="PackedScene" id=2]
@@ -15,6 +15,7 @@
 [ext_resource path="res://src/things/Background.tscn" type="PackedScene" id=13]
 [ext_resource path="res://src/things/Valley.tscn" type="PackedScene" id=14]
 [ext_resource path="res://src/things/PalmTree.tscn" type="PackedScene" id=15]
+[ext_resource path="res://audio/wave-sounds.ogg" type="AudioStream" id=16]
 
 [node name="FinalScene" type="Node2D"]
 script = ExtResource( 1 )
@@ -226,6 +227,11 @@ tree_height = 230
 [node name="DelayTimer" type="Timer" parent="."]
 wait_time = 1.5
 one_shot = true
+
+[node name="WavesSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 16 )
+volume_db = -10.0
+autoplay = true
 [connection signal="timeout" from="DelayTimer" to="." method="_on_DelayTimer_timeout"]
 
 [editable path="MiniIsland"]
