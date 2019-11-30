@@ -116,11 +116,19 @@ func _on_store_changed(name, state):
 	if store.get_state()['game']['has_coconut'] != null:
 		has_coconut_L = store.get_state()['game']['has_coconut']
 	if store.get_state()['game']['song'] != null:
+		var prev_song = game_song_L
 		game_song_L = store.get_state()['game']['song']
+		update_song_playing(prev_song, game_song_L)
 	if store.get_state()['game']['correct_note_count'] != null:
 		correct_note_count_L = store.get_state()['game']['correct_note_count']
 	if store.get_state()['game']['wrong_note_count'] != null:
 		wrong_note_count_L = store.get_state()['game']['wrong_note_count']
+
+func update_song_playing(prev_song, curr_song):
+	if curr_song == '' and prev_song != '': # Song Off
+		pass
+	elif curr_song != '' and prev_song == '': # New Song
+		$DialogueBox.queue_clear_text()
 
 func handle_hover_tip(queue):
 	if !queue.empty() and current_hover_tip != null:
@@ -180,6 +188,10 @@ func get_next_playing_dialogue():
 #			var score_validation_arr = get_score_validation_text()
 #			for i in range(0, score_validation_arr.size()):
 #				next_dialogue.push_back(score_validation_arr[i])
+		Globals.GameProgress.PREPARE_FINAL_SONG:
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Can I practice a song for you?"))
+			next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Sure thing hun"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Song', "FatherRabbit"))
 	return next_dialogue
 
 func get_score_validation_text():
@@ -218,7 +230,6 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "What's today?"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "A ta-hare-iffic day!"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "But seriously though"))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Today is the day you are all grown up"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ""))
 					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "One might say"))
@@ -362,6 +373,13 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Whatever that means"))
 		Globals.GameProgress.LYRE_OBTAINED:
+			match father_dict_L[game_progress_L]:
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How do I play the lyre again?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Use numbers 1-8 on your keyboard"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Whatever that means"))
+		Globals.GameProgress.PREPARE_FINAL_SONG:
 			match father_dict_L[game_progress_L]:
 				_:
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "How do I play the lyre again?"))

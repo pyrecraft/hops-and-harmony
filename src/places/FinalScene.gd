@@ -31,17 +31,16 @@ func add_final_dialogue():
 
 func get_dialogue():
 	var next_dialogue = []
-#	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come one, come all"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come short, come tall"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come less-legged, come more-legged,"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come two-legged, come four-legged"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
-#	next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Jesus.."))
-#	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Let's all celebrate Harley's first day!"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Still alive!"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Woohoo Harley!"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('FatherRabbit', "Proud of you darling"))
-#	next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'd like to share a song with you all"))
+	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come one, come all"))
+	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come short, come tall"))
+	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come less-legged, come more-legged,"))
+	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Come two-legged, come four-legged"))
+	next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', ".."))
+	next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Jesus.."))
+	next_dialogue.push_back(Globals.create_dialogue_object('Sheep', "Let's all celebrate Harley's first day!"))
+	next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Still alive!"))
+	next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Woohoo Harley!"))
+	next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'd like to share a song with you all"))
 	next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "In thanks for this amazing day"))
 	next_dialogue.push_back(Globals.create_dialogue_object('Song', "FinalSong"))
 	return next_dialogue

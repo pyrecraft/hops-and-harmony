@@ -140,6 +140,7 @@ func check_for_song_start(beat_count):
 				elif beat_count == 4:
 					$BeatTimer.stop()
 					$SongbirdsAudio.play(0)
+					print('Setting is_preloading to false')
 					is_preloading_initial_beats = false
 		'FinalSong':
 			print('FinalSong beat count: ' + str(beat_count))
@@ -212,7 +213,7 @@ func handle_next_dialogue(queue):
 					'FatherRabbit':
 						store.dispatch(actions.game_set_beat_count(0))
 					'Songbirds':
-						store.dispatch(actions.game_set_beat_count(4))
+						store.dispatch(actions.game_set_beat_count(3))
 					'FinalSong':
 						store.dispatch(actions.game_set_beat_count(0))
 				store.dispatch(actions.game_set_correct_note_count(0))
@@ -311,8 +312,8 @@ func handle_beat_management():
 				$SongFinishTimer.start()
 				is_preloading_initial_beats = true
 		'FinalSong':
-#			var num_notes = 291
-			var num_notes = 50
+			var num_notes = 291
+#			var num_notes = 50
 			if beat_count_L >= num_notes - 32:
 				note_tracker_inst.hide()
 				fade_rate = 0.0775
@@ -321,6 +322,7 @@ func handle_beat_management():
 				$SongFinishTimer.start()
 				is_preloading_initial_beats = true
 				is_final_song_done = true
+				$FinalSongAudio.stop()
 
 func song_finished():
 	var next_text = get_score_validation_text()
@@ -330,11 +332,11 @@ func song_finished():
 	$SongbirdsAudio.stop()
 	$FinalSongAudio.stop()
 	print('Ending song')
-	is_beat_count_set = false
 	store.dispatch(actions.game_set_song(''))
 	store.dispatch(actions.game_set_state(Globals.GameState.PLAYING))
 	if !Globals.is_in_final_song():
 		store.dispatch(actions.game_set_beat_count(0))
+		is_beat_count_set = false
 	current_rabbit_state = RabbitState.TALKING
 	store.dispatch(actions.dialogue_pop_queue())
 	if dialogue_queue_L.empty():
@@ -715,4 +717,5 @@ func _on_BeatTimer_timeout():
 	store.dispatch(actions.game_set_beat_count(beat_count_L + 1))
 
 func _on_OutroTimer_timeout():
+	print('Attempting to change to outro')
 	get_tree().change_scene("res://src/places/Outro.tscn")

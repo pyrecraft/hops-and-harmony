@@ -25,6 +25,7 @@ var scale_polarity = 1 # +1 or -1
 
 var game_day_L = 1
 var game_hour_L = 1
+var game_song_L
 var game_state_L = Globals.GameState.PLAYING
 var game_progress_L = Globals.GameProgress.GAME_START
 var has_coconut_L = false
@@ -38,6 +39,7 @@ func _ready():
 	$DialogueBox.clear_text()
 	game_progress_L = Globals.get_state_value('game', 'progress')
 	crab_dict_L = Globals.get_state_value('dialogue', 'crab_dict')
+	game_song_L = Globals.get_state_value('game', 'song')
 
 func _process(delta):
 	current_scale += scale_rate * delta * scale_polarity
@@ -73,6 +75,16 @@ func _on_store_changed(name, state):
 		crab_dict_L = store.get_state()['dialogue']['crab_dict']
 	if store.get_state()['game']['has_coconut'] != null:
 		has_coconut_L = store.get_state()['game']['has_coconut']
+	if store.get_state()['game']['song'] != null:
+		var prev_song = game_song_L
+		game_song_L = store.get_state()['game']['song']
+		update_song_playing(prev_song, game_song_L)
+
+func update_song_playing(prev_song, curr_song):
+	if curr_song == '' and prev_song != '': # Song Off
+		pass
+	elif curr_song != '' and prev_song == '': # New Song
+		$DialogueBox.queue_clear_text()
 
 func _on_ShowStartTextTimer_timeout():
 	current_hover_tip.show()
@@ -207,6 +219,14 @@ func get_next_dialogue():
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Oh"))
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Thanks"))
 		Globals.GameProgress.LYRE_OBTAINED:
+			match crab_dict_L[game_progress_L]:
+				_:
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Carl!"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Hi"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Want to hear a song?"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Not really"))
+					next_dialogue.push_back(Globals.create_dialogue_object('Crab', "Maybe when the mood is right"))
+		Globals.GameProgress.PREPARE_FINAL_SONG:
 			match crab_dict_L[game_progress_L]:
 				_:
 					next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Carl!"))

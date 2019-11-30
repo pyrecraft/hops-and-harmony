@@ -80,7 +80,9 @@ func _on_store_changed(name, state):
 	if store.get_state()['game']['has_coconut'] != null:
 		has_coconut_L = store.get_state()['game']['has_coconut']
 	if store.get_state()['game']['song'] != null:
+		var prev_song = game_song_L
 		game_song_L = store.get_state()['game']['song']
+		update_song_playing(prev_song, game_song_L)
 	if store.get_state()['game']['correct_note_count'] != null:
 		correct_note_count_L = store.get_state()['game']['correct_note_count']
 	if store.get_state()['game']['wrong_note_count'] != null:
@@ -89,6 +91,12 @@ func _on_store_changed(name, state):
 		beat_count_L = store.get_state()['game']['beat_count']
 		if beat_count_L == 0 and game_song_L != '': # New song started
 			$DialogueBox.clear_text()
+
+func update_song_playing(prev_song, curr_song):
+	if curr_song == '' and prev_song != '': # Song Off
+		pass
+	elif curr_song != '' and prev_song == '': # New Song
+		$DialogueBox.queue_clear_text()
 
 func handle_hover_tip(queue):
 	if !queue.empty() and current_hover_tip != null:
@@ -144,11 +152,16 @@ func get_next_playing_dialogue():
 		Globals.GameProgress.LYRE_OBTAINED:
 			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
 			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
-			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll try my best"))
-			next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Perfection!"))
-			next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "We'll appreciate anything"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll see what I could come up with"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song! "))
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song! "))
+			next_dialogue.push_back(Globals.create_dialogue_object('Song', "Songbirds"))
+		Globals.GameProgress.PREPARE_FINAL_SONG:
 			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
 			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song!"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I'll see what I could come up with"))
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song! "))
+			next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Song! "))
 			next_dialogue.push_back(Globals.create_dialogue_object('Song', "Songbirds"))
 	return next_dialogue
 
@@ -201,7 +214,6 @@ func get_next_dialogue():
 						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "He'll help you figure everything out"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Where is the Sheepa?"))
 						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Bunny can't think for self!"))
-						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "He's right"))
 						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Finding the Sheepa is part of the journey"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Uhmmm Ok"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Thanks I guess"))
@@ -311,6 +323,18 @@ func get_next_dialogue():
 						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I might know something"))
 						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar! "))
 						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar! "))
+			Globals.GameProgress.PREPARE_FINAL_SONG:
+				match songbird_purple_dict_L[game_progress_L]:
+					_:
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar, Lyre!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar, Lyre!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Are you saying 'Liar'?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "Or 'Lyre'?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdGreen', "Liar!"))
+						next_dialogue.push_back(Globals.create_dialogue_object('SongbirdPurple', "Want to play us a song?"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Rabbit', "I might know something"))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar! "))
+						next_dialogue.push_back(Globals.create_dialogue_object('Songbirds', "Liar! "))
 	store.dispatch(actions.dialogue_increment_songbird_purple_dict(original_game_progress))
 	return next_dialogue
 
@@ -369,7 +393,7 @@ func _on_Area2D_body_entered(body):
 		is_rabbit_in_speak_zone = true
 		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
 	
-	if body.name == 'Rabbit' and current_play_hover_tip == null and Globals.has_lyre()  and !Globals.is_in_final_song():
+	if body.name == 'Rabbit' and current_play_hover_tip == null and Globals.has_lyre() and !Globals.is_in_final_song():
 		current_play_hover_tip = hover_tip.instance()
 		add_child(current_play_hover_tip)
 		current_play_hover_tip.z_index = 1

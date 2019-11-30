@@ -20,10 +20,11 @@ enum GameProgress {
 	COCONUT_STARTED, # Gather coconuts
 	COCONUT_COMPLETED, # Lyre Obtained
 	LYRE_OBTAINED,
+	PREPARE_FINAL_SONG,
 	FINAL_SONG
 }
 
-const GAME_PROGRESS_TOTAL_STATES = 9
+const GAME_PROGRESS_TOTAL_STATES = 10
 
 func get_color(r, g, b, a):
 	return Color(float(r)/255.0, float(g)/255.0, float(b)/255.0, float(a)/255.0)

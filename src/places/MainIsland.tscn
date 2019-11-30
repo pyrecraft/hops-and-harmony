@@ -79,7 +79,6 @@ radius = 56.5739
 [node name="MainIsland" type="Node2D"]
 rotation = 0.000323031
 script = ExtResource( 1 )
-spawn_main_island = false
 
 [node name="Burrow" parent="." instance=ExtResource( 2 )]
 position = Vector2( 876.155, 469.369 )

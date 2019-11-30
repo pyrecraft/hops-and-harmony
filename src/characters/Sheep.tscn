@@ -19,11 +19,11 @@ shape = SubResource( 1 )
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2( 239.756, -2.907 )
+position = Vector2( 320.514, -2.907 )
 shape = SubResource( 2 )
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
-position = Vector2( -250.361, -3.30481 )
+position = Vector2( -322.367, -3.30481 )
 shape = SubResource( 2 )
 
 [node name="DialogueBox" parent="." instance=ExtResource( 2 )]
