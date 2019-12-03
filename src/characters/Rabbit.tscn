@@ -59,7 +59,7 @@ one_shot = true
 
 [node name="JumpSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 7 )
-volume_db = -30.0
+volume_db = -32.0
 pitch_scale = 0.7
 
 [node name="LandingSound" type="AudioStreamPlayer" parent="."]

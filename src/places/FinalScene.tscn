@@ -140,6 +140,7 @@ n3 = 2.6
 
 [node name="DayNightCycle" parent="." instance=ExtResource( 11 )]
 position = Vector2( -526.914, 0 )
+color_dawn = Color( 0.858824, 0.701961, 0.701961, 1 )
 
 [node name="IslandWaterSprite" parent="." instance=ExtResource( 12 )]
 position = Vector2( -557.021, 334.633 )

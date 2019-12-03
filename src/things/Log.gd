@@ -11,10 +11,15 @@ export var scale_rate = .5
 export var position_multiplier = 50.0
 var current_scale = 0.0
 var scale_polarity = 1 # +1 or -1
+export var start_left = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	current_pos = position
+	if start_left:
+		scale_polarity = -1
+	else:
+		scale_polarity = 1
 
 func _physics_process(delta):
 	current_scale += scale_rate * delta * scale_polarity

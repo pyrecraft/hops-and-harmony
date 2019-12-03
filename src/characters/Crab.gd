@@ -3,9 +3,9 @@ extends Node2D
 const hover_tip = preload("res://src/things/HoverTip.tscn")
 
 const color_back_legs = Color('ef4a40')
-const color_secondary = Color('da1c11')
 const eye_color = Color('2a363b')
-export var color_primary = Color('#f26860')
+var color_secondary = Globals.get_color(218,28,17, 255)
+var color_primary = Globals.get_color(242,104,96,255)
 
 var starting_pos = Vector2(0, -20)
 var head_nb_points = 4
@@ -350,6 +350,7 @@ func _on_Area2D_body_entered(body):
 		add_child(current_hover_tip)
 		is_rabbit_in_speak_zone = true
 		store.dispatch(actions.dialogue_set_rabbit_position(body.position))
+		pass
 
 func _on_Area2D_body_exited(body):
 	if body.name == 'Rabbit' and current_hover_tip != null and !Globals.is_in_final_song():

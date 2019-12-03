@@ -1,22 +1,21 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://src/places/MainIsland.gd" type="Script" id=1]
 [ext_resource path="res://src/places/Burrow.tscn" type="PackedScene" id=2]
 [ext_resource path="res://src/things/Valley.tscn" type="PackedScene" id=3]
 [ext_resource path="res://src/things/Background.tscn" type="PackedScene" id=4]
 [ext_resource path="res://src/things/Cloud.tscn" type="PackedScene" id=5]
-[ext_resource path="res://src/things/Rock.tscn" type="PackedScene" id=6]
-[ext_resource path="res://src/things/Log.tscn" type="PackedScene" id=7]
-[ext_resource path="res://src/things/PalmTree.tscn" type="PackedScene" id=8]
-[ext_resource path="res://src/things/Supershape.tscn" type="PackedScene" id=9]
-[ext_resource path="res://src/characters/Crab.tscn" type="PackedScene" id=10]
-[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=11]
-[ext_resource path="res://src/characters/Songbird.tscn" type="PackedScene" id=12]
-[ext_resource path="res://src/characters/Sheep.tscn" type="PackedScene" id=13]
-[ext_resource path="res://src/lighting/DayNightCycle.tscn" type="PackedScene" id=14]
-[ext_resource path="res://src/things/IslandWaterSprite.tscn" type="PackedScene" id=15]
-[ext_resource path="res://audio/toto-harley-nighttime.ogg" type="AudioStream" id=16]
-[ext_resource path="res://src/places/MiniIsland.tscn" type="PackedScene" id=17]
+[ext_resource path="res://src/things/Log.tscn" type="PackedScene" id=6]
+[ext_resource path="res://src/things/PalmTree.tscn" type="PackedScene" id=7]
+[ext_resource path="res://src/things/Supershape.tscn" type="PackedScene" id=8]
+[ext_resource path="res://src/characters/Crab.tscn" type="PackedScene" id=9]
+[ext_resource path="res://src/characters/Turtle.tscn" type="PackedScene" id=10]
+[ext_resource path="res://src/characters/Songbird.tscn" type="PackedScene" id=11]
+[ext_resource path="res://src/characters/Sheep.tscn" type="PackedScene" id=12]
+[ext_resource path="res://src/lighting/DayNightCycle.tscn" type="PackedScene" id=13]
+[ext_resource path="res://src/things/IslandWaterSprite.tscn" type="PackedScene" id=14]
+[ext_resource path="res://audio/toto-harley-nighttime.ogg" type="AudioStream" id=15]
+[ext_resource path="res://src/places/MiniIsland.tscn" type="PackedScene" id=16]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 1908.32, 24.9725 )
@@ -36,47 +35,8 @@ radius = 96.8728
 [sub_resource type="CircleShape2D" id=6]
 radius = 157.052
 
-[sub_resource type="CircleShape2D" id=7]
-radius = 61.9682
-
-[sub_resource type="GDScript" id=8]
-script/source = "extends StaticBody2D
-
-export var radius = 50
-export var color = Color('#5f6769')
-
-var current_pos = Vector2(0, 0)
-
-# Animation
-export var scale_rate = .5
-export var position_multiplier = 50.0
-var current_scale = 0.0
-var scale_polarity = 1 # +1 or -1
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	current_pos = position
-
-func _physics_process(delta):
-	current_scale += scale_rate * delta * scale_polarity
-	if current_scale < -1.0: # Fatter
-		scale_polarity = 1
-	elif current_scale > 1.0: # Thinner
-		scale_polarity = -1
-	
-	position = Vector2(current_pos.x, current_pos.y + (current_scale * position_multiplier))
-	update()
-
-func _draw():
-	draw_circle(Vector2(0, 0), $CollisionShape2D.shape.radius, color)"
-
-[sub_resource type="CircleShape2D" id=9]
-radius = 62.8619
-
-[sub_resource type="CircleShape2D" id=10]
-radius = 56.5739
-
 [node name="MainIsland" type="Node2D"]
+position = Vector2( 1.28027, 0 )
 rotation = 0.000323031
 script = ExtResource( 1 )
 
@@ -212,88 +172,61 @@ editor/display_folded = true
 position = Vector2( 2768.41, 461.291 )
 shape = SubResource( 6 )
 
-[node name="Rock" parent="Rocks" instance=ExtResource( 6 )]
-position = Vector2( 4314, 547.982 )
+[node name="Log" parent="Rocks" instance=ExtResource( 6 )]
+position = Vector2( 4429.57, 564.371 )
 z_index = -1
-position_multiplier = 30.0
+start_left = true
 
-[node name="CollisionShape2D" parent="Rocks/Rock" index="0"]
-position = Vector2( 0, 9.8988 )
-shape = SubResource( 7 )
-
-[node name="Rock2" parent="Rocks" instance=ExtResource( 6 )]
-position = Vector2( 5176, 590.565 )
+[node name="Log3" parent="Rocks" instance=ExtResource( 6 )]
+position = Vector2( 5998.48, 564.371 )
 z_index = -1
-script = SubResource( 8 )
-radius = 50
-color = Color( 0.341176, 0.372549, 0.380392, 1 )
-scale_rate = 0.75
-position_multiplier = 40.0
+start_left = true
 
-[node name="CollisionShape2D" parent="Rocks/Rock2" index="0"]
-shape = SubResource( 9 )
-
-[node name="Rock3" parent="Rocks" instance=ExtResource( 6 )]
-position = Vector2( 5557.9, 611.777 )
+[node name="Log2" parent="Rocks" instance=ExtResource( 6 )]
+position = Vector2( 5198.35, 565.226 )
 z_index = -1
-color = Color( 0.2, 0.243137, 0.254902, 1 )
-scale_rate = 0.3
-position_multiplier = 30.0
-
-[node name="CollisionShape2D" parent="Rocks/Rock3" index="0"]
-position = Vector2( 0, 3.63708 )
-shape = SubResource( 10 )
-
-[node name="Log" parent="Rocks" instance=ExtResource( 7 )]
-position = Vector2( 4746.79, 559.617 )
-z_index = -1
-position_multiplier = 100.0
-
-[node name="Log2" parent="Rocks" instance=ExtResource( 7 )]
-position = Vector2( 5990.69, 559.617 )
-z_index = -1
-position_multiplier = 120.0
+position_multiplier = 140.0
 
 [node name="CollisionShape2D" parent="Rocks/Log2" index="0"]
 position = Vector2( -1.41406, -1.41406 )
 
 [node name="Trees" type="Node" parent="."]
 
-[node name="PalmTree" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree" parent="Trees" instance=ExtResource( 7 )]
 position = Vector2( 402.817, 288.061 )
 
-[node name="PalmTree2" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree2" parent="Trees" instance=ExtResource( 7 )]
 position = Vector2( 2216.92, 271.667 )
 tree_height = 220
 is_tree_swaying = false
 
-[node name="PalmTree3" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree3" parent="Trees" instance=ExtResource( 7 )]
 position = Vector2( 2454.84, 262.543 )
 tree_height = 230
 is_tree_swaying = false
 
-[node name="PalmTree4" parent="Trees" instance=ExtResource( 8 )]
+[node name="PalmTree4" parent="Trees" instance=ExtResource( 7 )]
 position = Vector2( 3424.51, 259.749 )
 tree_height = 230
 
 [node name="Supershapes" type="Node" parent="."]
 editor/display_folded = true
 
-[node name="Starfish" parent="Supershapes" instance=ExtResource( 9 )]
+[node name="Starfish" parent="Supershapes" instance=ExtResource( 8 )]
 position = Vector2( 176.569, 487.282 )
 supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
 supershape_scale = 20.0
 supershape_np = 100
 n1 = 0.1
 
-[node name="Starfish6" parent="Supershapes" instance=ExtResource( 9 )]
+[node name="Starfish6" parent="Supershapes" instance=ExtResource( 8 )]
 position = Vector2( 3924.2, 494.016 )
 supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
 supershape_scale = 20.0
 supershape_np = 100
 n1 = 0.1
 
-[node name="Starfish5" parent="Supershapes" instance=ExtResource( 9 )]
+[node name="Starfish5" parent="Supershapes" instance=ExtResource( 8 )]
 position = Vector2( 101.117, 494.141 )
 rotation = -1.40674
 supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
@@ -301,7 +234,7 @@ supershape_scale = 18.0
 supershape_np = 25
 n1 = 0.08
 
-[node name="Starfish2" parent="Supershapes" instance=ExtResource( 9 )]
+[node name="Starfish2" parent="Supershapes" instance=ExtResource( 8 )]
 position = Vector2( 265.932, 483.042 )
 rotation = -0.563741
 supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
@@ -311,7 +244,7 @@ n1 = 0.08
 n2 = 1.8
 n3 = 1.8
 
-[node name="Starfish3" parent="Supershapes" instance=ExtResource( 9 )]
+[node name="Starfish3" parent="Supershapes" instance=ExtResource( 8 )]
 position = Vector2( 3838.42, 483.042 )
 rotation = -1.68948
 supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
@@ -321,7 +254,7 @@ n1 = 0.12
 n2 = 2.5
 n3 = 2.5
 
-[node name="Starfish4" parent="Supershapes" instance=ExtResource( 9 )]
+[node name="Starfish4" parent="Supershapes" instance=ExtResource( 8 )]
 position = Vector2( 4002.28, 540.284 )
 rotation = 0.280998
 supershape_color = Color( 0.921569, 0.509804, 0.258824, 0.537255 )
@@ -333,41 +266,40 @@ n3 = 2.6
 
 [node name="Characters" type="Node" parent="."]
 
-[node name="Crab" parent="Characters" instance=ExtResource( 10 )]
+[node name="Crab" parent="Characters" instance=ExtResource( 9 )]
 position = Vector2( 213.277, 438.402 )
 
-[node name="Turtle" parent="Characters" instance=ExtResource( 11 )]
-position = Vector2( 3060.64, 361.557 )
+[node name="Turtle" parent="Characters" instance=ExtResource( 10 )]
+position = Vector2( 1808.96, 289.427 )
+rotation = -2.58026
+is_moving_left = true
 
-[node name="SongbirdGreen" parent="Characters" instance=ExtResource( 12 )]
+[node name="SongbirdGreen" parent="Characters" instance=ExtResource( 11 )]
 position = Vector2( 2200.11, 245.442 )
 
-[node name="SongbirdPurple" parent="Characters" instance=ExtResource( 12 )]
+[node name="SongbirdPurple" parent="Characters" instance=ExtResource( 11 )]
 position = Vector2( 2442.1, 237.06 )
 color_primary = Color( 0.898039, 0.690196, 0.917647, 1 )
 is_purple_songbird = true
 
-[node name="Sheep" parent="Characters" instance=ExtResource( 13 )]
+[node name="Sheep" parent="Characters" instance=ExtResource( 12 )]
 position = Vector2( 6765.67, 404.589 )
 
-[node name="DayNightCycle" parent="." instance=ExtResource( 14 )]
+[node name="DayNightCycle" parent="." instance=ExtResource( 13 )]
+position = Vector2( 32.2289, -0.000685297 )
 
-[node name="IslandWaterSprite" parent="." instance=ExtResource( 15 )]
+[node name="IslandWaterSprite" parent="." instance=ExtResource( 14 )]
 position = Vector2( 0, 334.633 )
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 16 )
+stream = ExtResource( 15 )
 autoplay = true
 
-[node name="MiniIsland" parent="." instance=ExtResource( 17 )]
+[node name="MiniIsland" parent="." instance=ExtResource( 16 )]
 [connection signal="timeout" from="CloudTimer" to="." method="_on_CloudTimer_timeout"]
 
-[editable path="Rocks/Rock"]
-
-[editable path="Rocks/Rock2"]
-
-[editable path="Rocks/Rock3"]
-
 [editable path="Rocks/Log"]
+
+[editable path="Rocks/Log3"]
 
 [editable path="Rocks/Log2"]

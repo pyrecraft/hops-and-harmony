@@ -13,7 +13,7 @@ var walk_speed = 80
 var jump_speed = -1000
 var velocity = Vector2()
 var normal_vec = Vector2(0, 0)
-var is_moving_left = false
+export var is_moving_left = false
 var is_in_shell = false
 
 # Animation

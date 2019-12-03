@@ -3,7 +3,7 @@ extends Node2D
 #var island_color = Color('#f9d5bb')
 
 var curr_viewport
-var is_using_moon = false
+export var is_using_moon = false
 var is_song_finished = false
 var game_song_L
 

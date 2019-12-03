@@ -4,7 +4,7 @@
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 30.0
-height = 300.0
+height = 452.737
 
 [node name="Log" type="StaticBody2D"]
 script = ExtResource( 1 )

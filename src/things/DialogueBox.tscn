@@ -31,7 +31,7 @@ text = "It's a fine day today!"
 scroll_active = false
 
 [node name="TextTimer" type="Timer" parent="."]
-wait_time = 0.04
+wait_time = 0.03
 
 [node name="TTLTimer" type="Timer" parent="."]
 wait_time = 1.5
